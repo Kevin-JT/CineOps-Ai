@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     scheduler_enabled: bool = False
     scheduler_interval_seconds: int = 86400  # Default to once a day (24 hours)
 
+    # Database
+    database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/cineops"
+
     # Settings Configuration
     model_config = SettingsConfigDict(
         env_file=".env",

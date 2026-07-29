@@ -17,7 +17,7 @@ class GeminiProvider(AIProvider):
     """
 
     BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
-    DEFAULT_MODEL = "gemini-1.5-flash"
+    DEFAULT_MODEL = "gemini-3.5-flash-lite"
 
     def __init__(
         self,
@@ -60,18 +60,20 @@ class GeminiProvider(AIProvider):
             raise ProviderError("Gemini API key not configured")
 
         url = f"{self.BASE_URL}/{self._model}:generateContent"
-        params = {"key": self._api_key}
 
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"responseMimeType": "application/json"},
         }
 
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": self._api_key,
+        }
 
         async def _make_request() -> httpx.Response:
             return await self._client.post(
-                url, params=params, headers=headers, json=payload, timeout=self._timeout
+                url, headers=headers, json=payload, timeout=self._timeout
             )
 
         if self._circuit_breaker:
