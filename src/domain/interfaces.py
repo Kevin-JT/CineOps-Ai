@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+
 from src.domain.models.media_item import MediaItem
+
 
 class AIProvider(ABC):
     @abstractmethod
@@ -8,7 +9,7 @@ class AIProvider(ABC):
 
 class MediaProvider(ABC):
     @abstractmethod
-    async def fetch_trending(self) -> List[MediaItem]: pass
+    async def fetch_trending(self) -> list[MediaItem]: pass
 
 class Repository(ABC):
     @abstractmethod
