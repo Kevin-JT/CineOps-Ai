@@ -8,7 +8,12 @@ from src.infrastructure.providers.telegram_provider import TelegramProvider
 
 @pytest.fixture
 def provider() -> TelegramProvider:
-    return TelegramProvider(bot_token="test_token", chat_id="test_chat", client=httpx.AsyncClient(), timeout=1.0)
+    return TelegramProvider(
+        bot_token="test_token",
+        chat_id="test_chat",
+        client=httpx.AsyncClient(),
+        timeout=1.0,
+    )
 
 
 @pytest.mark.asyncio
