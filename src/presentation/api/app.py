@@ -55,7 +55,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title="CineOps AI API",
-        version="0.1.0",
+        version="1.0.0",
         description="AI-driven cinematic operations and automation system API.",
         openapi_tags=tags_metadata,
         lifespan=lifespan,
