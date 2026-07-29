@@ -42,8 +42,10 @@ class JsonHistoryRepository(HistoryRepository):
             logger.error(f"Failed to save history to {self._file_path}: {e}")
 
     async def save(self, item: MediaItem) -> bool:
+        import asyncio
+
         self._history[item.id] = item
-        self._save_to_disk()
+        await asyncio.to_thread(self._save_to_disk)
         return True
 
     async def exists(self, item_id: str) -> bool:
@@ -82,8 +84,10 @@ class JsonBlacklistRepository(BlacklistRepository):
             logger.error(f"Failed to save blacklist to {self._file_path}: {e}")
 
     async def add(self, item_id: str) -> None:
+        import asyncio
+
         self._blacklist.add(item_id)
-        self._save_to_disk()
+        await asyncio.to_thread(self._save_to_disk)
 
     async def is_blacklisted(self, item_id: str) -> bool:
         return item_id in self._blacklist

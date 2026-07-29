@@ -80,11 +80,8 @@ class RecommendationService:
 
         selected_item = next((i for i in items if i.id == selected_id), None)
         if not selected_item:
-            # Fallback to the first item if the AI hallucinates an ID
-            logger.warning(
-                f"AI selected invalid ID '{selected_id}'. Falling back to first item."
-            )
-            selected_item = items[0]
+            logger.error(f"AI selected invalid ID '{selected_id}'.")
+            raise CineOpsError(f"AI hallucinated an invalid media ID: {selected_id}")
 
         logger.info(
             f"AI successfully recommended item '{selected_item.title}' "

@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import httpx
 
@@ -23,11 +24,13 @@ class GeminiProvider(AIProvider):
         api_key: str,
         client: httpx.AsyncClient,
         model: str = DEFAULT_MODEL,
+        circuit_breaker: Any = None,
         timeout: float = 30.0,
     ) -> None:
         self._api_key = api_key
         self._client = client
         self._model = model
+        self._circuit_breaker = circuit_breaker
         self._timeout = timeout
 
     @async_retry(
@@ -56,13 +59,23 @@ class GeminiProvider(AIProvider):
         url = f"{self.BASE_URL}/{self._model}:generateContent"
         params = {"key": self._api_key}
 
-        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"responseMimeType": "application/json"},
+        }
 
         headers = {"Content-Type": "application/json"}
 
-        response = await self._client.post(
-            url, params=params, headers=headers, json=payload, timeout=self._timeout
-        )
+        async def _make_request() -> httpx.Response:
+            return await self._client.post(
+                url, params=params, headers=headers, json=payload, timeout=self._timeout
+            )
+
+        if self._circuit_breaker:
+            response = await self._circuit_breaker.call(_make_request)
+        else:
+            response = await _make_request()
+
         response.raise_for_status()
         data = response.json()
 

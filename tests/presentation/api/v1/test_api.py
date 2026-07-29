@@ -30,7 +30,7 @@ def test_version(client: TestClient) -> None:
 def test_metrics(client: TestClient) -> None:
     response = client.get("/api/v1/metrics")
     assert response.status_code == 200
-    assert response.json() == {"status": "not_implemented"}
+    assert "process_max_fds" in response.text or "python_gc" in response.text
 
 
 # We can test the Readiness check via the TestClient as well, which tests the dependency injection.

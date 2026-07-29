@@ -1,3 +1,6 @@
+from functools import lru_cache
+
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from src.config.environments import Environment
@@ -38,12 +41,19 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    @model_validator(mode="after")
+    def validate_production_secrets(self) -> "Settings":
+        if (
+            self.app_env == Environment.PRODUCTION
+            and self.api_key_secret == "change-me-in-production"
+        ):
+            raise ValueError("api_key_secret must be changed in production")
+        return self
 
+
+@lru_cache
 def get_settings() -> Settings:
     """
     Factory function to retrieve application settings.
     """
     return Settings()  # type: ignore
-
-
-settings = get_settings()

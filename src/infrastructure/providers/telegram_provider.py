@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import httpx
 
@@ -22,11 +23,13 @@ class TelegramProvider(NotificationProvider):
         bot_token: str,
         chat_id: str,
         client: httpx.AsyncClient,
+        circuit_breaker: Any = None,
         timeout: float = 10.0,
     ) -> None:
         self._bot_token = bot_token
         self._chat_id = chat_id
         self._client = client
+        self._circuit_breaker = circuit_breaker
         self._timeout = timeout
 
     @async_retry(
@@ -60,7 +63,14 @@ class TelegramProvider(NotificationProvider):
             "parse_mode": "Markdown",
         }
 
-        response = await self._client.post(url, json=payload, timeout=self._timeout)
+        async def _make_request() -> httpx.Response:
+            return await self._client.post(url, json=payload, timeout=self._timeout)
+
+        if self._circuit_breaker:
+            response = await self._circuit_breaker.call(_make_request)
+        else:
+            response = await _make_request()
+
         response.raise_for_status()
 
         data = response.json()

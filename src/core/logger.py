@@ -9,6 +9,8 @@ from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 from typing import Any
 
+from src.core.context import get_correlation_id, get_execution_id
+
 
 class JSONFormatter(logging.Formatter):
     """
@@ -26,9 +28,18 @@ class JSONFormatter(logging.Formatter):
         if record.exc_info:
             log_data["exception"] = self.formatException(record.exc_info)
 
-        # Include custom correlation ID if it exists
-        if hasattr(record, "correlation_id"):
+        # Include correlation ID from context if it exists
+        correlation_id = get_correlation_id()
+        if correlation_id:
+            log_data["correlation_id"] = correlation_id
+        # Include custom correlation ID if it exists on record (fallback)
+        elif hasattr(record, "correlation_id"):
             log_data["correlation_id"] = record.correlation_id
+
+        # Include execution ID from context if it exists
+        execution_id = get_execution_id()
+        if execution_id:
+            log_data["execution_id"] = execution_id
 
         return json.dumps(log_data)
 
@@ -61,7 +72,17 @@ def setup_logger(
     log_path.mkdir(parents=True, exist_ok=True)
 
     json_formatter = JSONFormatter()
-    standard_formatter = logging.Formatter(
+
+    class ConsoleFormatter(logging.Formatter):
+        def format(self, record: logging.LogRecord) -> str:
+            from src.core.context import get_correlation_id
+
+            corr_id = get_correlation_id()
+            prefix = f"[{corr_id}] " if corr_id else ""
+            record.msg = f"{prefix}{record.msg}"
+            return super().format(record)
+
+    standard_formatter = ConsoleFormatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 

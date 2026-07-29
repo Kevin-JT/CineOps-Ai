@@ -1,16 +1,12 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
+from fastapi import APIRouter, Response
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
 
 
-class MetricsResponse(BaseModel):
-    status: str
-
-
-@router.get("", response_model=MetricsResponse)
-async def get_metrics() -> MetricsResponse:
+@router.get("")
+async def get_metrics() -> Response:
     """
-    Placeholder for prometheus/custom metrics.
+    Exposes Prometheus metrics.
     """
-    return MetricsResponse(status="not_implemented")
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)

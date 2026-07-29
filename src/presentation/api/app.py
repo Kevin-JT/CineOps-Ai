@@ -16,6 +16,7 @@ from src.presentation.api.exceptions import (
 )
 from src.presentation.api.middlewares import (
     CorrelationIdMiddleware,
+    RateLimitMiddleware,
     RequestTimingMiddleware,
 )
 from src.presentation.api.v1.router import api_router
@@ -76,7 +77,10 @@ def create_app() -> FastAPI:
     # 4. Correlation ID Tracking
     app.add_middleware(CorrelationIdMiddleware)
 
-    # 3. Response Compression
+    # 3. Rate Limiting
+    app.add_middleware(RateLimitMiddleware, max_requests=100, window_seconds=60)
+
+    # 2. Response Compression
     app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     # 2. CORS handling (allow_credentials must be False if origins='*')

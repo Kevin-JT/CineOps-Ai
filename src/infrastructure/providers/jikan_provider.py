@@ -18,10 +18,15 @@ class JikanProvider(MediaProvider):
     """
 
     def __init__(
-        self, base_url: str, client: httpx.AsyncClient, timeout: float = 10.0
+        self,
+        base_url: str,
+        client: httpx.AsyncClient,
+        circuit_breaker: Any = None,
+        timeout: float = 10.0,
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._client = client
+        self._circuit_breaker = circuit_breaker
         self._timeout = timeout
 
     @async_retry(
@@ -38,9 +43,17 @@ class JikanProvider(MediaProvider):
         Raises:
             ProviderError: If the API request fails.
         """
-        response = await self._client.get(
-            f"{self._base_url}/top/anime", timeout=self._timeout
-        )
+
+        async def _make_request() -> httpx.Response:
+            return await self._client.get(
+                f"{self._base_url}/top/anime", timeout=self._timeout
+            )
+
+        if self._circuit_breaker:
+            response = await self._circuit_breaker.call(_make_request)
+        else:
+            response = await _make_request()
+
         response.raise_for_status()
         data = response.json()
 

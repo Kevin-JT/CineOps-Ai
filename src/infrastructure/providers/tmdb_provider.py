@@ -20,10 +20,15 @@ class TMDbProvider(MediaProvider):
     BASE_URL = "https://api.themoviedb.org/3"
 
     def __init__(
-        self, api_key: str, client: httpx.AsyncClient, timeout: float = 10.0
+        self,
+        api_key: str,
+        client: httpx.AsyncClient,
+        circuit_breaker: Any = None,
+        timeout: float = 10.0,
     ) -> None:
         self._api_key = api_key
         self._client = client
+        self._circuit_breaker = circuit_breaker
         self._timeout = timeout
 
     @async_retry(
@@ -49,11 +54,18 @@ class TMDbProvider(MediaProvider):
             "accept": "application/json",
         }
 
-        response = await self._client.get(
-            f"{self.BASE_URL}/trending/movie/day",
-            headers=headers,
-            timeout=self._timeout,
-        )
+        async def _make_request() -> httpx.Response:
+            return await self._client.get(
+                f"{self.BASE_URL}/trending/movie/day",
+                headers=headers,
+                timeout=self._timeout,
+            )
+
+        if self._circuit_breaker:
+            response = await self._circuit_breaker.call(_make_request)
+        else:
+            response = await _make_request()
+
         response.raise_for_status()
         data = response.json()
 

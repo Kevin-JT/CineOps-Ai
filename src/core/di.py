@@ -1,4 +1,8 @@
 import httpx
+from opentelemetry import metrics
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.resources import Resource
 
 from src.application.services.caption import CaptionGenerationService
 from src.application.services.coordinator import WorkflowCoordinator
@@ -7,6 +11,7 @@ from src.application.services.prompt_builder import PromptBuilder
 from src.application.services.recommendation import RecommendationService
 from src.application.services.trending import TrendingService
 from src.config.settings import Settings, get_settings
+from src.core.circuit_breaker import CircuitBreaker
 from src.domain.services.deduplication import DeduplicationService
 from src.domain.services.filtering import MediaFilterService
 from src.domain.services.ranking import RankingService
@@ -34,20 +39,50 @@ class Container:
         # Shared HTTP Client for connection pooling
         self.http_client = httpx.AsyncClient()
 
-        # Initialize providers
+        # Setup OpenTelemetry Metrics with Prometheus Exporter
+        resource = Resource.create({"service.name": "cineops-ai"})
+        self.metric_reader = PrometheusMetricReader()
+        self.meter_provider = MeterProvider(
+            resource=resource, metric_readers=[self.metric_reader]
+        )
+        metrics.set_meter_provider(self.meter_provider)
+        self.meter = metrics.get_meter("cineops.telemetry")
+
+        # Circuit Breakers
+        self.tmdb_cb = CircuitBreaker(
+            "tmdb", failure_threshold=5, recovery_timeout_sec=30.0
+        )
+        self.jikan_cb = CircuitBreaker(
+            "jikan", failure_threshold=5, recovery_timeout_sec=30.0
+        )
+        self.gemini_cb = CircuitBreaker(
+            "gemini", failure_threshold=3, recovery_timeout_sec=60.0
+        )
+        self.telegram_cb = CircuitBreaker(
+            "telegram", failure_threshold=5, recovery_timeout_sec=30.0
+        )
+
+        # Initialize providers (injecting circuit breakers)
         self.tmdb_provider = TMDbProvider(
-            api_key=self.settings.tmdb_api_key, client=self.http_client
+            api_key=self.settings.tmdb_api_key,
+            client=self.http_client,
+            circuit_breaker=self.tmdb_cb,
         )
         self.jikan_provider = JikanProvider(
-            base_url=self.settings.jikan_base_url, client=self.http_client
+            base_url=self.settings.jikan_base_url,
+            client=self.http_client,
+            circuit_breaker=self.jikan_cb,
         )
         self.gemini_provider = GeminiProvider(
-            api_key=self.settings.gemini_api_key, client=self.http_client
+            api_key=self.settings.gemini_api_key,
+            client=self.http_client,
+            circuit_breaker=self.gemini_cb,
         )
         self.telegram_provider = TelegramProvider(
             bot_token=self.settings.telegram_bot_token,
             chat_id=self.settings.telegram_chat_id,
             client=self.http_client,
+            circuit_breaker=self.telegram_cb,
         )
 
         # Repositories (JSON-backed for persistence)

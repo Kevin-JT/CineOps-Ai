@@ -28,15 +28,25 @@ class WorkflowJob:
         """
         Executes the CineOps AI workflow with retries and produces an execution summary.
         """
-        logger.info("--- [JOB START] CineOps Workflow ---")
-        start_time = time.perf_counter()
+        import uuid
+
+        from src.core.context import execution_id_ctx
+
+        execution_id = f"exec_{uuid.uuid4().hex[:8]}"
+        token = execution_id_ctx.set(execution_id)
 
         try:
-            await self.coordinator.run_pipeline()
-            elapsed = time.perf_counter() - start_time
-            logger.info(f"--- [JOB SUCCESS] Completed in {elapsed:.2f}s ---")
-        except Exception as e:
-            elapsed = time.perf_counter() - start_time
-            logger.error(f"--- [JOB FAILED] Failed after {elapsed:.2f}s: {e!s} ---")
-            # We re-raise to trigger the @async_retry decorator logic
-            raise
+            logger.info("--- [JOB START] CineOps Workflow ---")
+            start_time = time.perf_counter()
+
+            try:
+                await self.coordinator.run_pipeline()
+                elapsed = time.perf_counter() - start_time
+                logger.info(f"--- [JOB SUCCESS] Completed in {elapsed:.2f}s ---")
+            except Exception as e:
+                elapsed = time.perf_counter() - start_time
+                logger.error(f"--- [JOB FAILED] Failed after {elapsed:.2f}s: {e!s} ---")
+                # We re-raise to trigger the @async_retry decorator logic
+                raise
+        finally:
+            execution_id_ctx.reset(token)
