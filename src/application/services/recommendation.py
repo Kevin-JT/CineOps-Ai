@@ -1,9 +1,11 @@
-import json
 import logging
-from typing import Any
 
+from pydantic import ValidationError
+
+from src.application.services.prompt_builder import PromptBuilder
 from src.core.exceptions import CineOpsError
 from src.domain.interfaces import AIProvider
+from src.domain.models.ai_response import AIRecommendationResponse
 from src.domain.models.media_item import MediaItem
 from src.domain.models.recommendation import Recommendation
 
@@ -15,8 +17,9 @@ class RecommendationService:
     Service responsible for orchestrating the AI to generate a recommendation.
     """
 
-    def __init__(self, ai_provider: AIProvider) -> None:
+    def __init__(self, ai_provider: AIProvider, prompt_builder: PromptBuilder) -> None:
         self.ai_provider = ai_provider
+        self.prompt_builder = prompt_builder
 
     async def generate_recommendation(self, items: list[MediaItem]) -> Recommendation:
         """
@@ -34,42 +37,12 @@ class RecommendationService:
         if not items:
             raise ValueError("Cannot generate recommendation without media items.")
 
-        prompt = self._build_prompt(items)
+        prompt = self.prompt_builder.build_recommendation_prompt(items)
         logger.info("Sending prompt to AI provider...")
 
         response_text = await self.ai_provider.generate_recommendations(prompt)
 
         return self._parse_response(response_text, items)
-
-    def _build_prompt(self, items: list[MediaItem]) -> str:
-        """
-        Builds the prompt instructing the AI on what to generate.
-        """
-        items_context = []
-        for i, item in enumerate(items, 1):
-            items_context.append(
-                f"{i}. Title: {item.title} ({item.media_type})\n"
-                f"   Rating: {item.rating}\n"
-                f"   Overview: {item.overview}\n"
-            )
-
-        context_str = "\n".join(items_context)
-
-        return (
-            "You are an expert content curator for a highly engaging social media account called CineOps.\n"
-            "Review the following trending media items:\n\n"
-            f"{context_str}\n\n"
-            "Select exactly ONE item from the list above that would make the most viral and engaging post.\n"
-            "Respond ONLY with a valid JSON object matching this exact structure:\n"
-            "{\n"
-            '  "selected_id": "the exact ID of the item you chose",\n'
-            '  "target_audience": "description of the target audience",\n'
-            '  "reasoning": "why this item is highly engaging right now",\n'
-            '  "caption": "a highly engaging, viral-optimized social media caption",\n'
-            '  "hashtags": ["#viral", "#trending"]\n'
-            "}\n"
-            "Do not include any Markdown formatting (like ```json), just the raw JSON object."
-        )
 
     def _parse_response(
         self, response_text: str, items: list[MediaItem]
@@ -84,24 +57,26 @@ class RecommendationService:
         cleaned_text = cleaned_text.removesuffix("```")
 
         try:
-            data: dict[str, Any] = json.loads(cleaned_text.strip())
-        except json.JSONDecodeError as e:
+            parsed_data = AIRecommendationResponse.model_validate_json(
+                cleaned_text.strip()
+            )
+        except ValidationError as e:
             logger.error(f"Failed to parse AI JSON response: {cleaned_text}")
+            logger.error(f"Validation error: {e}")
             raise CineOpsError("AI provided invalid JSON format.") from e
+        except Exception as e:
+            logger.error(f"Unexpected parsing error: {e}")
+            raise CineOpsError("Unexpected error parsing AI response.") from e
 
-        selected_id = str(data.get("selected_id", ""))
-        target_audience = str(data.get("target_audience", "General"))
-        reasoning = str(data.get("reasoning", "No reasoning provided."))
+        selected_id = parsed_data.selected_id
 
-        # Combine the caption and hashtags into the reasoning/caption for now,
-        # or we could add them to the Recommendation model if needed.
-        # Since the model has target_audience and reasoning, we'll store them there.
-        # Wait, the prompt generated "caption" and "hashtags". Let's append them to reasoning for storage,
-        # or we could update the Recommendation model. For now, append to reasoning to keep the domain pure.
-        caption = data.get("caption", "")
-        hashtags = " ".join(data.get("hashtags", []))
-
-        full_reasoning = f"{reasoning}\n\nCaption: {caption}\nHashtags: {hashtags}"
+        # Format a richer reasoning block explaining "why now" and "audience appeal"
+        full_reasoning = (
+            f"**Why Now**: {parsed_data.reasoning_why_now}\n\n"
+            f"**Audience Appeal**: {parsed_data.reasoning_audience_appeal}\n\n"
+            f"**Caption**: {parsed_data.caption}\n"
+            f"**Hashtags**: {' '.join(parsed_data.hashtags)}"
+        )
 
         selected_item = next((i for i in items if i.id == selected_id), None)
         if not selected_item:
@@ -111,11 +86,15 @@ class RecommendationService:
             )
             selected_item = items[0]
 
-        logger.info(f"AI successfully recommended item '{selected_item.title}'.")
+        logger.info(
+            f"AI successfully recommended item '{selected_item.title}' "
+            f"with confidence score {parsed_data.confidence_score}."
+        )
 
         return Recommendation(
             id=f"rec_{selected_item.id}",
             items=[selected_item],
-            target_audience=target_audience,
+            target_audience=parsed_data.target_audience,
             reasoning=full_reasoning,
+            confidence_score=parsed_data.confidence_score,
         )

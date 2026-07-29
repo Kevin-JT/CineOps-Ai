@@ -12,5 +12,6 @@ class Recommendation(BaseModel):
     items: list[MediaItem]
     target_audience: str
     reasoning: str
+    confidence_score: float = 0.0
     viral_score: float = 0.0
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

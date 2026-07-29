@@ -1,5 +1,6 @@
 import pytest
 
+from src.application.services.prompt_builder import PromptBuilder
 from src.application.services.recommendation import RecommendationService
 from src.core.exceptions import CineOpsError
 from src.domain.interfaces import AIProvider
@@ -19,15 +20,18 @@ async def test_generate_recommendation_success() -> None:
     ai_response = """
     {
       "selected_id": "1",
+      "confidence_score": 95.5,
       "target_audience": "Sci-Fi fans",
-      "reasoning": "Great visual effects.",
+      "reasoning_why_now": "Trending space events.",
+      "reasoning_audience_appeal": "Great visual effects.",
       "caption": "Check this out!",
       "hashtags": ["#scifi", "#movie"]
     }
     """
 
     provider = MockAIProvider(ai_response)
-    service = RecommendationService(provider)
+    prompt_builder = PromptBuilder()
+    service = RecommendationService(provider, prompt_builder)
 
     items = [
         MediaItem(id="1", title="Interstellar", overview="Space", media_type="movie"),
@@ -38,6 +42,9 @@ async def test_generate_recommendation_success() -> None:
 
     assert rec.id == "rec_1"
     assert rec.target_audience == "Sci-Fi fans"
+    assert rec.confidence_score == 95.5
+    assert "Great visual effects." in rec.reasoning
+    assert "Trending space events." in rec.reasoning
     assert "Check this out!" in rec.reasoning
     assert "#scifi #movie" in rec.reasoning
     assert len(rec.items) == 1
@@ -47,7 +54,8 @@ async def test_generate_recommendation_success() -> None:
 @pytest.mark.asyncio
 async def test_generate_recommendation_invalid_json() -> None:
     provider = MockAIProvider("This is not JSON")
-    service = RecommendationService(provider)
+    prompt_builder = PromptBuilder()
+    service = RecommendationService(provider, prompt_builder)
 
     items = [
         MediaItem(id="1", title="Interstellar", overview="Space", media_type="movie")
@@ -59,6 +67,7 @@ async def test_generate_recommendation_invalid_json() -> None:
 
 @pytest.mark.asyncio
 async def test_generate_recommendation_no_items() -> None:
-    service = RecommendationService(MockAIProvider("{}"))
+    prompt_builder = PromptBuilder()
+    service = RecommendationService(MockAIProvider("{}"), prompt_builder)
     with pytest.raises(ValueError, match="without media items"):
         await service.generate_recommendation([])

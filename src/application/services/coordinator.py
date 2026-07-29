@@ -112,7 +112,8 @@ class WorkflowCoordinator:
             message = (
                 f"🎬 *New Recommendation Ready!*\n\n"
                 f"**{selected_item.title}** ({selected_item.media_type})\n"
-                f"Viral Score: {viral_score_result.score}/100\n\n"
+                f"Viral Score: {viral_score_result.score}/100\n"
+                f"AI Confidence: {final_recommendation.confidence_score}/100\n\n"
                 f"Check the output directory for details!"
             )
             await self.notification_provider.send_message(message)

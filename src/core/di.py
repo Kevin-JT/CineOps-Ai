@@ -3,6 +3,7 @@ import httpx
 from src.application.services.caption import CaptionGenerationService
 from src.application.services.coordinator import WorkflowCoordinator
 from src.application.services.hashtag import HashtagGenerationService
+from src.application.services.prompt_builder import PromptBuilder
 from src.application.services.recommendation import RecommendationService
 from src.application.services.trending import TrendingService
 from src.config.settings import Settings, get_settings
@@ -67,7 +68,10 @@ class Container:
         self.trending_service = TrendingService(
             providers=[self.tmdb_provider, self.jikan_provider]
         )
-        self.recommendation_service = RecommendationService(self.gemini_provider)
+        self.prompt_builder = PromptBuilder()
+        self.recommendation_service = RecommendationService(
+            self.gemini_provider, self.prompt_builder
+        )
         self.caption_service = CaptionGenerationService(self.gemini_provider)
         self.hashtag_service = HashtagGenerationService(self.gemini_provider)
         self.export_provider = LocalExportProvider(output_dir="output")
