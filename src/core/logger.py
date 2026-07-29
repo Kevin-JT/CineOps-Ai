@@ -4,9 +4,9 @@ Structured logging configuration for CineOps AI.
 
 import json
 import logging
-import os
 from datetime import UTC, datetime
 from logging.handlers import TimedRotatingFileHandler
+from pathlib import Path
 from typing import Any
 
 
@@ -57,7 +57,8 @@ def setup_logger(
     logger.setLevel(parsed_level)
 
     # Ensure log directory exists
-    os.makedirs(log_dir, exist_ok=True)
+    log_path = Path(log_dir)
+    log_path.mkdir(parents=True, exist_ok=True)
 
     json_formatter = JSONFormatter()
     standard_formatter = logging.Formatter(
@@ -70,9 +71,9 @@ def setup_logger(
     console_handler.setFormatter(standard_formatter)
 
     # File Handler (JSON structured, Daily rotating)
-    log_file = os.path.join(log_dir, f"{name}.log")
+    log_file = log_path / f"{name}.log"
     file_handler = TimedRotatingFileHandler(
-        log_file, when="midnight", interval=1, backupCount=30
+        str(log_file), when="midnight", interval=1, backupCount=30
     )
     file_handler.setLevel(parsed_level)
     file_handler.setFormatter(json_formatter)

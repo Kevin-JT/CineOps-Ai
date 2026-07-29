@@ -29,7 +29,7 @@ def test_json_formatter() -> None:
     )
     
     # Add correlation ID dynamically as it might happen in the app
-    setattr(record, "correlation_id", "12345")
+    record.correlation_id = "12345"
 
     formatted = formatter.format(record)
     parsed = json.loads(formatted)

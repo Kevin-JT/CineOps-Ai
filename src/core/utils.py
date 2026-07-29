@@ -3,7 +3,7 @@ Shared utilities for the CineOps AI application.
 """
 
 import json
-import os
+from pathlib import Path
 from typing import Any
 
 
@@ -11,7 +11,7 @@ def ensure_directory(path: str) -> None:
     """
     Ensures that a directory exists, creating it if necessary.
     """
-    os.makedirs(path, exist_ok=True)
+    Path(path).mkdir(parents=True, exist_ok=True)
 
 
 def safe_json_loads(data: str, default: Any = None) -> Any:
