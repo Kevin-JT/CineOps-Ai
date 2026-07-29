@@ -1,0 +1,12 @@
+ pyproject.toml                |  13 [32m+[m[31m-[m
+ src/core/di.py                |  27 [32m++[m[31m--[m
+ src/core/exceptions.py        |   5 [31m-[m
+ src/core/retry.py             |   9 [32m+[m[31m-[m
+ src/domain/interfaces.py      |  17 [32m++[m[31m-[m
+ src/main.py                   |  10 [32m+[m[31m-[m
+ tests/config/test_settings.py |   2 [32m+[m[31m-[m
+ tests/core/test_logger.py     |   3 [32m+[m[31m-[m
+ tests/core/test_retry.py      |   1 [31m-[m
+ tests/core/test_utils.py      |  14 [32m+[m[31m-[m
+ uv.lock                       | 838 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 11 files changed, 899 insertions(+), 40 deletions(-)

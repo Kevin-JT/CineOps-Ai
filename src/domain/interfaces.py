@@ -19,3 +19,9 @@ class Repository(ABC):
     @abstractmethod
     async def save(self, item: MediaItem) -> bool:
         pass
+
+
+class NotificationProvider(ABC):
+    @abstractmethod
+    async def send_message(self, message: str) -> bool:
+        pass

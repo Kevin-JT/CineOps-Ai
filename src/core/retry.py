@@ -21,6 +21,7 @@ def async_retry(
     base_delay: float = constants.RETRY_BASE_DELAY_SEC,
     max_delay: float = constants.RETRY_MAX_DELAY_SEC,
     exceptions: tuple[type[Exception], ...] = (Exception,),
+    raise_exc: type[Exception] = CineOpsError,
 ) -> Callable[..., Any]:
     """
     Decorator for retrying async functions with exponential backoff.
@@ -48,8 +49,8 @@ def async_retry(
                         logger.error(
                             f"Final attempt {attempt}/{max_attempts} failed for {func.__name__}: {e!s}"
                         )
-                        raise CineOpsError(
-                            f"Operation {func.__name__} failed after {max_attempts} attempts."
+                        raise raise_exc(
+                            f"Operation {func.__name__} failed after {max_attempts} attempts: {e!s}"
                         ) from e
 
                     logger.warning(
@@ -61,7 +62,7 @@ def async_retry(
                     delay = min(delay * 2, max_delay)
 
             # This line should logically never be reached due to the `raise` above, but satisfies MyPy.
-            raise CineOpsError(f"Operation {func.__name__} failed.")
+            raise raise_exc(f"Operation {func.__name__} failed.")
 
         return wrapper
 
