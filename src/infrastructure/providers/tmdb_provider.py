@@ -65,6 +65,7 @@ class TMDbProvider(MediaProvider):
                     media_type="movie",
                     release_date=item.get("release_date") or item.get("first_air_date"),
                     rating=float(item.get("vote_average", 0.0)),
+                    popularity=float(item.get("popularity", 0.0)),
                 )
                 items.append(media)
 

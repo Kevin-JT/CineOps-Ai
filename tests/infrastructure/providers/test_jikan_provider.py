@@ -22,6 +22,7 @@ async def test_jikan_fetch_trending_success(provider: JikanProvider) -> None:
                 "synopsis": "Anime Overview",
                 "aired": {"from": "2023-05-10T00:00:00+00:00"},
                 "score": 9.2,
+                "members": 50000,
             }
         ]
     }
@@ -38,6 +39,7 @@ async def test_jikan_fetch_trending_success(provider: JikanProvider) -> None:
     assert items[0].title == "Test Anime"
     assert items[0].media_type == "anime"
     assert items[0].release_date == "2023-05-10"
+    assert items[0].popularity == 50000.0
 
 
 @pytest.mark.asyncio
@@ -49,5 +51,5 @@ async def test_jikan_fetch_trending_failure(provider: JikanProvider) -> None:
 
     with pytest.raises(ProviderError) as exc_info:
         await provider.fetch_trending()
-        
+
     assert "Operation fetch_trending failed" in str(exc_info.value)

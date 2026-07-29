@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.domain.models.media_item import MediaItem
+from src.domain.models.recommendation import Recommendation
 
 
 class AIProvider(ABC):
@@ -15,13 +16,29 @@ class MediaProvider(ABC):
         pass
 
 
-class Repository(ABC):
+class HistoryRepository(ABC):
+    @abstractmethod
+    async def exists(self, item_id: str) -> bool:
+        pass
+
     @abstractmethod
     async def save(self, item: MediaItem) -> bool:
+        pass
+
+
+class BlacklistRepository(ABC):
+    @abstractmethod
+    async def is_blacklisted(self, item_id: str) -> bool:
         pass
 
 
 class NotificationProvider(ABC):
     @abstractmethod
     async def send_message(self, message: str) -> bool:
+        pass
+
+
+class ExportProvider(ABC):
+    @abstractmethod
+    async def export_recommendation(self, recommendation: "Recommendation") -> None:
         pass

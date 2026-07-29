@@ -1,8 +1,20 @@
+from src.application.services.coordinator import WorkflowCoordinator
+from src.application.services.recommendation import RecommendationService
+from src.application.services.trending import TrendingService
 from src.config.settings import Settings, get_settings
+from src.domain.services.deduplication import DeduplicationService
+from src.domain.services.filtering import MediaFilterService
+from src.domain.services.ranking import RankingService
+from src.domain.services.scoring import ViralScoringService
+from src.infrastructure.providers.export_provider import LocalExportProvider
 from src.infrastructure.providers.gemini_provider import GeminiProvider
 from src.infrastructure.providers.jikan_provider import JikanProvider
 from src.infrastructure.providers.telegram_provider import TelegramProvider
 from src.infrastructure.providers.tmdb_provider import TMDbProvider
+from src.infrastructure.repositories.in_memory import (
+    InMemoryBlacklistRepository,
+    InMemoryHistoryRepository,
+)
 
 
 class Container:
@@ -24,14 +36,36 @@ class Container:
         )
 
         # Repositories
-        # self.history_repo = HistoryRepository(self.settings.storage_path)
+        self.history_repo = InMemoryHistoryRepository()
+        self.blacklist_repo = InMemoryBlacklistRepository()
 
-        # Services
-        # self.recommendation_service = RecommendationService(
-        #     self.tmdb_provider, self.jikan_provider, self.gemini_provider, self.history_repo
-        # )
+        # Domain Services
+        self.filter_service = MediaFilterService(min_rating=6.0)
+        self.deduplication_service = DeduplicationService(
+            self.history_repo, self.blacklist_repo
+        )
+        self.ranking_service = RankingService()
+        self.scoring_service = ViralScoringService()
 
-    # Example property to retrieve a fully constructed service
-    # @property
-    # def recommendation_pipeline(self) -> RecommendationService:
-    #     return self.recommendation_service
+        # Application Services
+        self.trending_service = TrendingService(
+            providers=[self.tmdb_provider, self.jikan_provider]
+        )
+        self.recommendation_service = RecommendationService(self.gemini_provider)
+        self.export_provider = LocalExportProvider(output_dir="output")
+
+        self.workflow_coordinator = WorkflowCoordinator(
+            trending_service=self.trending_service,
+            deduplication_service=self.deduplication_service,
+            filter_service=self.filter_service,
+            ranking_service=self.ranking_service,
+            recommendation_service=self.recommendation_service,
+            scoring_service=self.scoring_service,
+            export_provider=self.export_provider,
+            history_repo=self.history_repo,
+            notification_provider=self.telegram_provider,
+        )
+
+    @property
+    def coordinator(self) -> WorkflowCoordinator:
+        return self.workflow_coordinator

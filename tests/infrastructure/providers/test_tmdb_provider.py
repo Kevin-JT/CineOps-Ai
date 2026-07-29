@@ -22,6 +22,7 @@ async def test_tmdb_fetch_trending_success(provider: TMDbProvider) -> None:
                 "overview": "Test Overview",
                 "release_date": "2024-01-01",
                 "vote_average": 8.5,
+                "popularity": 1234.5,
             }
         ]
     }
@@ -37,6 +38,7 @@ async def test_tmdb_fetch_trending_success(provider: TMDbProvider) -> None:
     assert items[0].id == "123"
     assert items[0].title == "Test Movie"
     assert items[0].media_type == "movie"
+    assert items[0].popularity == 1234.5
 
 
 @pytest.mark.asyncio

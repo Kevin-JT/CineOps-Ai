@@ -1,0 +1,60 @@
+import json
+import logging
+from pathlib import Path
+
+from src.domain.interfaces import ExportProvider
+from src.domain.models.recommendation import Recommendation
+
+logger = logging.getLogger(__name__)
+
+
+class LocalExportProvider(ExportProvider):
+    """
+    Infrastructure provider responsible for exporting recommendations to local disk.
+    """
+
+    def __init__(self, output_dir: str = "output") -> None:
+        self.output_dir = Path(output_dir)
+
+    async def export_recommendation(self, recommendation: Recommendation) -> None:
+        """
+        Exports the recommendation as JSON and Markdown files.
+        """
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        json_path = self.output_dir / "recommendation.json"
+        md_path = self.output_dir / "recommendation.md"
+
+        # Write JSON
+        data = recommendation.model_dump(mode="json")
+        try:
+            json_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            logger.info(f"Successfully exported recommendation JSON to {json_path}")
+        except OSError as e:
+            logger.error(f"Failed to write JSON export: {e}")
+            raise
+
+        # Write Markdown
+        md_content = (
+            f"# CineOps AI Recommendation\n\n"
+            f"**ID**: {recommendation.id}\n"
+            f"**Target Audience**: {recommendation.target_audience}\n"
+            f"**Viral Score**: {recommendation.viral_score}/100\n\n"
+            f"## Reasoning & Content\n\n"
+            f"{recommendation.reasoning}\n\n"
+            f"## Selected Item\n\n"
+        )
+
+        for item in recommendation.items:
+            md_content += (
+                f"- **{item.title}** ({item.media_type})\n"
+                f"  - Rating: {item.rating}\n"
+                f"  - Overview: {item.overview}\n"
+            )
+
+        try:
+            md_path.write_text(md_content, encoding="utf-8")
+            logger.info(f"Successfully exported recommendation Markdown to {md_path}")
+        except OSError as e:
+            logger.error(f"Failed to write Markdown export: {e}")
+            raise

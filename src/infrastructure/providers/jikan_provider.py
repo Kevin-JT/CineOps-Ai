@@ -61,6 +61,7 @@ class JikanProvider(MediaProvider):
                     media_type="anime",
                     release_date=release_date,
                     rating=float(item.get("score") or 0.0),
+                    popularity=float(item.get("members") or 0.0),
                 )
                 items.append(media)
 
