@@ -36,8 +36,14 @@ class Container:
     def __init__(self) -> None:
         self.settings: Settings = get_settings()
 
-        # Shared HTTP Client for connection pooling
-        self.http_client = httpx.AsyncClient()
+        # Shared HTTP Client for connection pooling with tuned performance limits
+        limits = httpx.Limits(max_keepalive_connections=20, max_connections=100)
+        self.http_client = httpx.AsyncClient(limits=limits)
+
+        # Cache Provider
+        from src.infrastructure.providers.cache_provider import InMemoryCacheProvider
+
+        self.cache_provider = InMemoryCacheProvider()
 
         # Setup OpenTelemetry Metrics with Prometheus Exporter
         resource = Resource.create({"service.name": "cineops-ai"})
@@ -62,16 +68,20 @@ class Container:
             "telegram", failure_threshold=5, recovery_timeout_sec=30.0
         )
 
-        # Initialize providers (injecting circuit breakers)
+        # Initialize providers (injecting circuit breakers and cache)
         self.tmdb_provider = TMDbProvider(
             api_key=self.settings.tmdb_api_key,
             client=self.http_client,
             circuit_breaker=self.tmdb_cb,
+            cache_provider=self.cache_provider,
+            cache_ttl_seconds=self.settings.cache_ttl_seconds,
         )
         self.jikan_provider = JikanProvider(
             base_url=self.settings.jikan_base_url,
             client=self.http_client,
             circuit_breaker=self.jikan_cb,
+            cache_provider=self.cache_provider,
+            cache_ttl_seconds=self.settings.cache_ttl_seconds,
         )
         self.gemini_provider = GeminiProvider(
             api_key=self.settings.gemini_api_key,

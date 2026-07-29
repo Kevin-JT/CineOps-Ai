@@ -54,13 +54,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         client_ip = request.client.host if request.client else "unknown"
         now = time.time()
 
-        # Clean up old requests
-        self._requests = {
-            ip: reqs
-            for ip, reqs in self._requests.items()
-            if reqs and reqs[-1] > now - self.window_seconds
-        }
-
         client_reqs = self._requests.get(client_ip, [])
         client_reqs = [t for t in client_reqs if t > now - self.window_seconds]
 

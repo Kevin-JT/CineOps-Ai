@@ -24,11 +24,15 @@ class TMDbProvider(MediaProvider):
         api_key: str,
         client: httpx.AsyncClient,
         circuit_breaker: Any = None,
+        cache_provider: Any = None,
+        cache_ttl_seconds: int = 3600,
         timeout: float = 10.0,
     ) -> None:
         self._api_key = api_key
         self._client = client
         self._circuit_breaker = circuit_breaker
+        self._cache_provider = cache_provider
+        self._cache_ttl_seconds = cache_ttl_seconds
         self._timeout = timeout
 
     @async_retry(
@@ -38,16 +42,20 @@ class TMDbProvider(MediaProvider):
     async def fetch_trending(self) -> list[MediaItem]:
         """
         Fetches the current trending movies from TMDb.
-
-        Returns:
-            A list of MediaItem objects representing trending movies.
-
-        Raises:
-            ProviderError: If the API request fails.
         """
         if not self._api_key:
             logger.warning("TMDb API key is missing. Cannot fetch trending movies.")
             raise ProviderError("TMDb API key not configured")
+
+        cache_key = "tmdb_trending"
+        if self._cache_provider:
+            cached_data = await self._cache_provider.get(cache_key)
+            if cached_data:
+                logger.info("Serving TMDb trending movies from cache.")
+                import json
+
+                items_data = json.loads(cached_data)
+                return [MediaItem(**item) for item in items_data]
 
         headers = {
             "Authorization": f"Bearer {self._api_key}",
@@ -86,4 +94,13 @@ class TMDbProvider(MediaProvider):
             items.append(media)
 
         logger.info(f"Successfully fetched {len(items)} trending movies from TMDb.")
+
+        if self._cache_provider:
+            import json
+
+            serialized = json.dumps([item.model_dump() for item in items])
+            await self._cache_provider.set(
+                cache_key, serialized, ttl_seconds=self._cache_ttl_seconds
+            )
+
         return items

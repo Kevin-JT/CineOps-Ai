@@ -36,6 +36,9 @@ class GeminiProvider(AIProvider):
     @async_retry(
         exceptions=(httpx.RequestError, httpx.HTTPStatusError),
         raise_exc=ProviderError,
+        max_attempts=5,
+        base_delay=2.0,
+        max_delay=30.0,
     )
     async def generate_recommendations(self, prompt: str) -> str:
         """

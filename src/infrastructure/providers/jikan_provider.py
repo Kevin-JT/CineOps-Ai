@@ -22,11 +22,15 @@ class JikanProvider(MediaProvider):
         base_url: str,
         client: httpx.AsyncClient,
         circuit_breaker: Any = None,
+        cache_provider: Any = None,
+        cache_ttl_seconds: int = 3600,
         timeout: float = 10.0,
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._client = client
         self._circuit_breaker = circuit_breaker
+        self._cache_provider = cache_provider
+        self._cache_ttl_seconds = cache_ttl_seconds
         self._timeout = timeout
 
     @async_retry(
@@ -36,13 +40,16 @@ class JikanProvider(MediaProvider):
     async def fetch_trending(self) -> list[MediaItem]:
         """
         Fetches the current top anime from Jikan.
-
-        Returns:
-            A list of MediaItem objects representing top anime.
-
-        Raises:
-            ProviderError: If the API request fails.
         """
+        cache_key = "jikan_trending"
+        if self._cache_provider:
+            cached_data = await self._cache_provider.get(cache_key)
+            if cached_data:
+                logger.info("Serving Jikan trending anime from cache.")
+                import json
+
+                items_data = json.loads(cached_data)
+                return [MediaItem(**item) for item in items_data]
 
         async def _make_request() -> httpx.Response:
             return await self._client.get(
@@ -82,4 +89,13 @@ class JikanProvider(MediaProvider):
             items.append(media)
 
         logger.info(f"Successfully fetched {len(items)} top anime from Jikan.")
+
+        if self._cache_provider:
+            import json
+
+            serialized = json.dumps([item.model_dump() for item in items])
+            await self._cache_provider.set(
+                cache_key, serialized, ttl_seconds=self._cache_ttl_seconds
+            )
+
         return items

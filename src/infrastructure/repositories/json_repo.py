@@ -15,8 +15,11 @@ class JsonHistoryRepository(HistoryRepository):
     """
 
     def __init__(self, file_path: str) -> None:
+        import asyncio
+
         self._file_path = Path(file_path)
         self._history: dict[str, MediaItem] = {}
+        self._lock = asyncio.Lock()
         self._load()
 
     def _load(self) -> None:
@@ -44,8 +47,9 @@ class JsonHistoryRepository(HistoryRepository):
     async def save(self, item: MediaItem) -> bool:
         import asyncio
 
-        self._history[item.id] = item
-        await asyncio.to_thread(self._save_to_disk)
+        async with self._lock:
+            self._history[item.id] = item
+            await asyncio.to_thread(self._save_to_disk)
         return True
 
     async def exists(self, item_id: str) -> bool:
@@ -59,8 +63,11 @@ class JsonBlacklistRepository(BlacklistRepository):
     """
 
     def __init__(self, file_path: str) -> None:
+        import asyncio
+
         self._file_path = Path(file_path)
         self._blacklist: set[str] = set()
+        self._lock = asyncio.Lock()
         self._load()
 
     def _load(self) -> None:
@@ -86,8 +93,9 @@ class JsonBlacklistRepository(BlacklistRepository):
     async def add(self, item_id: str) -> None:
         import asyncio
 
-        self._blacklist.add(item_id)
-        await asyncio.to_thread(self._save_to_disk)
+        async with self._lock:
+            self._blacklist.add(item_id)
+            await asyncio.to_thread(self._save_to_disk)
 
     async def is_blacklisted(self, item_id: str) -> bool:
         return item_id in self._blacklist

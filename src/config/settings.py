@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     data_directory: str = "data"
     storage_path: str = "data/storage.json"
     cache_path: str = "data/cache.json"
+    cache_ttl_seconds: int = 3600  # Default to 1 hour
 
     # Scheduler
     scheduler_enabled: bool = False

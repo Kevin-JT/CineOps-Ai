@@ -19,23 +19,27 @@ class DeduplicationService:
     async def filter_duplicates(self, items: list[MediaItem]) -> list[MediaItem]:
         """
         Filters out items that have already been recommended or are blacklisted.
-
-        Args:
-            items: The list of media items to check.
-
-        Returns:
-            A list of new, valid items.
+        Checks all items concurrently for performance optimization.
         """
-        unique_items = []
-        for item in items:
-            is_blacklisted = await self.blacklist_repo.is_blacklisted(item.id)
-            if is_blacklisted:
-                continue
+        import asyncio
 
-            exists_in_history = await self.history_repo.exists(item.id)
-            if exists_in_history:
-                continue
+        async def _is_duplicate(item: MediaItem) -> bool:
+            # We can run these two checks concurrently as well, but sequential is fine per item
+            # Running both concurrently per item for maximum performance
+            is_blacklisted_task = asyncio.create_task(
+                self.blacklist_repo.is_blacklisted(item.id)
+            )
+            exists_task = asyncio.create_task(self.history_repo.exists(item.id))
 
-            unique_items.append(item)
+            # If blacklisted, it's a duplicate
+            if await is_blacklisted_task:
+                return True
 
+            # If exists in history, it's a duplicate
+            return bool(await exists_task)
+
+        # Run checks for all items concurrently
+        results = await asyncio.gather(*[_is_duplicate(item) for item in items])
+
+        unique_items = [item for item, is_dup in zip(items, results) if not is_dup]
         return unique_items

@@ -42,3 +42,13 @@ class ExportProvider(ABC):
     @abstractmethod
     async def export_recommendation(self, recommendation: "Recommendation") -> None:
         pass
+
+
+class CacheProvider(ABC):
+    @abstractmethod
+    async def get(self, key: str) -> str | None:
+        pass
+
+    @abstractmethod
+    async def set(self, key: str, value: str, ttl_seconds: int | None = None) -> None:
+        pass
