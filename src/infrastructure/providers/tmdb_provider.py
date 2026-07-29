@@ -19,8 +19,11 @@ class TMDbProvider(MediaProvider):
 
     BASE_URL = "https://api.themoviedb.org/3"
 
-    def __init__(self, api_key: str, timeout: float = 10.0) -> None:
+    def __init__(
+        self, api_key: str, client: httpx.AsyncClient, timeout: float = 10.0
+    ) -> None:
         self._api_key = api_key
+        self._client = client
         self._timeout = timeout
 
     @async_retry(
@@ -46,28 +49,29 @@ class TMDbProvider(MediaProvider):
             "accept": "application/json",
         }
 
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            response = await client.get(
-                f"{self.BASE_URL}/trending/movie/day", headers=headers
+        response = await self._client.get(
+            f"{self.BASE_URL}/trending/movie/day",
+            headers=headers,
+            timeout=self._timeout,
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        results: list[dict[str, Any]] = data.get("results", [])
+
+        items = []
+        for item in results:
+            # Map TMDb fields to MediaItem
+            media = MediaItem(
+                id=str(item.get("id")),
+                title=item.get("title") or item.get("name", "Unknown Title"),
+                overview=item.get("overview", ""),
+                media_type="movie",
+                release_date=item.get("release_date") or item.get("first_air_date"),
+                rating=float(item.get("vote_average", 0.0)),
+                popularity=float(item.get("popularity", 0.0)),
             )
-            response.raise_for_status()
-            data = response.json()
+            items.append(media)
 
-            results: list[dict[str, Any]] = data.get("results", [])
-
-            items = []
-            for item in results:
-                # Map TMDb fields to MediaItem
-                media = MediaItem(
-                    id=str(item.get("id")),
-                    title=item.get("title") or item.get("name", "Unknown Title"),
-                    overview=item.get("overview", ""),
-                    media_type="movie",
-                    release_date=item.get("release_date") or item.get("first_air_date"),
-                    rating=float(item.get("vote_average", 0.0)),
-                    popularity=float(item.get("popularity", 0.0)),
-                )
-                items.append(media)
-
-            logger.info(f"Successfully fetched {len(items)} trending movies from TMDb.")
-            return items
+        logger.info(f"Successfully fetched {len(items)} trending movies from TMDb.")
+        return items

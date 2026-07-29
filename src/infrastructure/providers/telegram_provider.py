@@ -17,9 +17,16 @@ class TelegramProvider(NotificationProvider):
 
     BASE_URL = "https://api.telegram.org/bot"
 
-    def __init__(self, bot_token: str, chat_id: str, timeout: float = 10.0) -> None:
+    def __init__(
+        self,
+        bot_token: str,
+        chat_id: str,
+        client: httpx.AsyncClient,
+        timeout: float = 10.0,
+    ) -> None:
         self._bot_token = bot_token
         self._chat_id = chat_id
+        self._client = client
         self._timeout = timeout
 
     @async_retry(
@@ -53,15 +60,14 @@ class TelegramProvider(NotificationProvider):
             "parse_mode": "Markdown",
         }
 
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            response = await client.post(url, json=payload)
-            response.raise_for_status()
+        response = await self._client.post(url, json=payload, timeout=self._timeout)
+        response.raise_for_status()
 
-            data = response.json()
-            if not data.get("ok"):
-                error_msg = data.get("description", "Unknown Telegram Error")
-                logger.error(f"Telegram API returned an error: {error_msg}")
-                raise ProviderError(f"Telegram API error: {error_msg}")
+        data = response.json()
+        if not data.get("ok"):
+            error_msg = data.get("description", "Unknown Telegram Error")
+            logger.error(f"Telegram API returned an error: {error_msg}")
+            raise ProviderError(f"Telegram API error: {error_msg}")
 
-            logger.info("Successfully sent message to Telegram.")
-            return True
+        logger.info("Successfully sent message to Telegram.")
+        return True

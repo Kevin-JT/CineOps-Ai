@@ -1,4 +1,8 @@
+import httpx
+
+from src.application.services.caption import CaptionGenerationService
 from src.application.services.coordinator import WorkflowCoordinator
+from src.application.services.hashtag import HashtagGenerationService
 from src.application.services.recommendation import RecommendationService
 from src.application.services.trending import TrendingService
 from src.config.settings import Settings, get_settings
@@ -11,9 +15,9 @@ from src.infrastructure.providers.gemini_provider import GeminiProvider
 from src.infrastructure.providers.jikan_provider import JikanProvider
 from src.infrastructure.providers.telegram_provider import TelegramProvider
 from src.infrastructure.providers.tmdb_provider import TMDbProvider
-from src.infrastructure.repositories.in_memory import (
-    InMemoryBlacklistRepository,
-    InMemoryHistoryRepository,
+from src.infrastructure.repositories.json_repo import (
+    JsonBlacklistRepository,
+    JsonHistoryRepository,
 )
 
 
@@ -26,18 +30,30 @@ class Container:
     def __init__(self) -> None:
         self.settings: Settings = get_settings()
 
+        # Shared HTTP Client for connection pooling
+        self.http_client = httpx.AsyncClient()
+
         # Initialize providers
-        self.tmdb_provider = TMDbProvider(api_key=self.settings.tmdb_api_key)
-        self.jikan_provider = JikanProvider(base_url=self.settings.jikan_base_url)
-        self.gemini_provider = GeminiProvider(api_key=self.settings.gemini_api_key)
+        self.tmdb_provider = TMDbProvider(
+            api_key=self.settings.tmdb_api_key, client=self.http_client
+        )
+        self.jikan_provider = JikanProvider(
+            base_url=self.settings.jikan_base_url, client=self.http_client
+        )
+        self.gemini_provider = GeminiProvider(
+            api_key=self.settings.gemini_api_key, client=self.http_client
+        )
         self.telegram_provider = TelegramProvider(
             bot_token=self.settings.telegram_bot_token,
             chat_id=self.settings.telegram_chat_id,
+            client=self.http_client,
         )
 
-        # Repositories
-        self.history_repo = InMemoryHistoryRepository()
-        self.blacklist_repo = InMemoryBlacklistRepository()
+        # Repositories (JSON-backed for persistence)
+        self.history_repo = JsonHistoryRepository(file_path=self.settings.storage_path)
+        self.blacklist_repo = JsonBlacklistRepository(
+            file_path=self.settings.cache_path
+        )
 
         # Domain Services
         self.filter_service = MediaFilterService(min_rating=6.0)
@@ -52,6 +68,8 @@ class Container:
             providers=[self.tmdb_provider, self.jikan_provider]
         )
         self.recommendation_service = RecommendationService(self.gemini_provider)
+        self.caption_service = CaptionGenerationService(self.gemini_provider)
+        self.hashtag_service = HashtagGenerationService(self.gemini_provider)
         self.export_provider = LocalExportProvider(output_dir="output")
 
         self.workflow_coordinator = WorkflowCoordinator(
@@ -69,3 +87,9 @@ class Container:
     @property
     def coordinator(self) -> WorkflowCoordinator:
         return self.workflow_coordinator
+
+    async def close(self) -> None:
+        """
+        Cleanly shuts down all resources and connections within the container.
+        """
+        await self.http_client.aclose()

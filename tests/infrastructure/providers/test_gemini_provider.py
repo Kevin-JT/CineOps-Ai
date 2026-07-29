@@ -8,7 +8,7 @@ from src.infrastructure.providers.gemini_provider import GeminiProvider
 
 @pytest.fixture
 def provider() -> GeminiProvider:
-    return GeminiProvider(api_key="test_key", timeout=1.0)
+    return GeminiProvider(api_key="test_key", client=httpx.AsyncClient(), timeout=1.0)
 
 
 @pytest.mark.asyncio
@@ -43,6 +43,6 @@ async def test_gemini_generate_invalid_format(provider: GeminiProvider) -> None:
 
 @pytest.mark.asyncio
 async def test_gemini_missing_api_key() -> None:
-    provider = GeminiProvider(api_key="")
+    provider = GeminiProvider(api_key="", client=httpx.AsyncClient())
     with pytest.raises(ProviderError, match="not configured"):
         await provider.generate_recommendations("prompt")

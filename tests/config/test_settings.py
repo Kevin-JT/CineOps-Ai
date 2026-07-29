@@ -9,7 +9,7 @@ def test_settings_default_values() -> None:
     # Ensure no relevant env vars are polluting the test
     os.environ.pop("APP_ENV", None)
 
-    settings = Settings()
+    settings = Settings()  # type: ignore
     assert settings.app_env == Environment.DEVELOPMENT
     assert settings.log_level == "INFO"
     assert settings.jikan_base_url == "https://api.jikan.moe/v4"

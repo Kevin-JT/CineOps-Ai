@@ -8,7 +8,7 @@ from src.infrastructure.providers.jikan_provider import JikanProvider
 
 @pytest.fixture
 def provider() -> JikanProvider:
-    return JikanProvider(base_url="https://api.jikan.moe/v4", timeout=1.0)
+    return JikanProvider(base_url="https://api.jikan.moe/v4", client=httpx.AsyncClient(), timeout=1.0)
 
 
 @pytest.mark.asyncio

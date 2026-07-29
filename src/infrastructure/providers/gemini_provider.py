@@ -19,9 +19,14 @@ class GeminiProvider(AIProvider):
     DEFAULT_MODEL = "gemini-1.5-flash"
 
     def __init__(
-        self, api_key: str, model: str = DEFAULT_MODEL, timeout: float = 30.0
+        self,
+        api_key: str,
+        client: httpx.AsyncClient,
+        model: str = DEFAULT_MODEL,
+        timeout: float = 30.0,
     ) -> None:
         self._api_key = api_key
+        self._client = client
         self._model = model
         self._timeout = timeout
 
@@ -55,29 +60,28 @@ class GeminiProvider(AIProvider):
 
         headers = {"Content-Type": "application/json"}
 
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            response = await client.post(
-                url, params=params, headers=headers, json=payload
-            )
-            response.raise_for_status()
-            data = response.json()
+        response = await self._client.post(
+            url, params=params, headers=headers, json=payload, timeout=self._timeout
+        )
+        response.raise_for_status()
+        data = response.json()
 
-            # Extract text from Gemini response structure
-            try:
-                candidates = data.get("candidates", [])
-                if not candidates:
-                    raise ProviderError("No candidates returned from Gemini")
+        # Extract text from Gemini response structure
+        try:
+            candidates = data.get("candidates", [])
+            if not candidates:
+                raise ProviderError("No candidates returned from Gemini")
 
-                content = candidates[0].get("content", {})
-                parts = content.get("parts", [])
+            content = candidates[0].get("content", {})
+            parts = content.get("parts", [])
 
-                if not parts:
-                    raise ProviderError("No text parts returned from Gemini")
+            if not parts:
+                raise ProviderError("No text parts returned from Gemini")
 
-                text_response = str(parts[0].get("text", ""))
-                logger.info("Successfully generated content from Gemini.")
-                return text_response
+            text_response = str(parts[0].get("text", ""))
+            logger.info("Successfully generated content from Gemini.")
+            return text_response
 
-            except (IndexError, KeyError, ValueError) as e:
-                logger.error(f"Failed to parse Gemini response: {e}")
-                raise ProviderError(f"Invalid Gemini response format: {e}") from e
+        except (IndexError, KeyError, ValueError) as e:
+            logger.error(f"Failed to parse Gemini response: {e}")
+            raise ProviderError(f"Invalid Gemini response format: {e}") from e

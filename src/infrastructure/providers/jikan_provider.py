@@ -17,8 +17,11 @@ class JikanProvider(MediaProvider):
     Fetches top trending anime.
     """
 
-    def __init__(self, base_url: str, timeout: float = 10.0) -> None:
+    def __init__(
+        self, base_url: str, client: httpx.AsyncClient, timeout: float = 10.0
+    ) -> None:
         self._base_url = base_url.rstrip("/")
+        self._client = client
         self._timeout = timeout
 
     @async_retry(
@@ -35,35 +38,35 @@ class JikanProvider(MediaProvider):
         Raises:
             ProviderError: If the API request fails.
         """
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            response = await client.get(f"{self._base_url}/top/anime")
-            response.raise_for_status()
-            data = response.json()
+        response = await self._client.get(
+            f"{self._base_url}/top/anime", timeout=self._timeout
+        )
+        response.raise_for_status()
+        data = response.json()
 
-            results: list[dict[str, Any]] = data.get("data", [])
+        results: list[dict[str, Any]] = data.get("data", [])
 
-            items = []
-            for item in results:
-                # Extract year/date if available
-                aired = item.get("aired", {})
-                release_date = None
-                if isinstance(aired, dict) and "from" in aired:
-                    date_str = aired.get("from")
-                    if date_str:
-                        # Jikan returns ISO 8601 strings, we can just grab the date part
-                        release_date = str(date_str).split("T")[0]
+        items = []
+        for item in results:
+            # Extract year/date if available
+            aired = item.get("aired", {})
+            release_date = None
+            if isinstance(aired, dict) and "from" in aired:
+                date_str = aired.get("from")
+                if date_str:
+                    # Jikan returns ISO 8601 strings, we can just grab the date part
+                    release_date = str(date_str).split("T")[0]
 
-                media = MediaItem(
-                    id=str(item.get("mal_id")),
-                    title=item.get("title_english")
-                    or item.get("title", "Unknown Title"),
-                    overview=item.get("synopsis") or "",
-                    media_type="anime",
-                    release_date=release_date,
-                    rating=float(item.get("score") or 0.0),
-                    popularity=float(item.get("members") or 0.0),
-                )
-                items.append(media)
+            media = MediaItem(
+                id=str(item.get("mal_id")),
+                title=item.get("title_english") or item.get("title", "Unknown Title"),
+                overview=item.get("synopsis") or "",
+                media_type="anime",
+                release_date=release_date,
+                rating=float(item.get("score") or 0.0),
+                popularity=float(item.get("members") or 0.0),
+            )
+            items.append(media)
 
-            logger.info(f"Successfully fetched {len(items)} top anime from Jikan.")
-            return items
+        logger.info(f"Successfully fetched {len(items)} top anime from Jikan.")
+        return items

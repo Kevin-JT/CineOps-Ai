@@ -8,7 +8,7 @@ from src.infrastructure.providers.tmdb_provider import TMDbProvider
 
 @pytest.fixture
 def provider() -> TMDbProvider:
-    return TMDbProvider(api_key="test_key", timeout=1.0)
+    return TMDbProvider(api_key="test_key", client=httpx.AsyncClient(), timeout=1.0)
 
 
 @pytest.mark.asyncio
@@ -56,6 +56,6 @@ async def test_tmdb_fetch_trending_failure(provider: TMDbProvider) -> None:
 
 @pytest.mark.asyncio
 async def test_tmdb_fetch_missing_api_key() -> None:
-    provider = TMDbProvider(api_key="")
+    provider = TMDbProvider(api_key="", client=httpx.AsyncClient())
     with pytest.raises(ProviderError, match="not configured"):
         await provider.fetch_trending()
