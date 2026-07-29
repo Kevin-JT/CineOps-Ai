@@ -7,6 +7,7 @@ from src.core.logger import JSONFormatter, setup_logger
 def test_setup_logger_creates_logger() -> None:
     """Test logger initialization."""
     import uuid
+
     unique_name = f"test_logger_{uuid.uuid4().hex}"
     logger = setup_logger(name=unique_name, log_level="DEBUG", log_dir="/tmp/logs")
     assert logger.name == unique_name
@@ -27,7 +28,7 @@ def test_json_formatter() -> None:
         args=(),
         exc_info=None,
     )
-    
+
     # Add correlation ID dynamically as it might happen in the app
     record.correlation_id = "12345"
 

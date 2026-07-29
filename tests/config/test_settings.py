@@ -8,7 +8,7 @@ def test_settings_default_values() -> None:
     """Test that settings load with correct defaults when no env vars are set."""
     # Ensure no relevant env vars are polluting the test
     os.environ.pop("APP_ENV", None)
-    
+
     settings = Settings()
     assert settings.app_env == Environment.DEVELOPMENT
     assert settings.log_level == "INFO"

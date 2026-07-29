@@ -13,15 +13,15 @@ async def main() -> None:
     """
     # 1. Bootstrapping
     settings = get_settings()
-    
+
     # Ensure data directory exists
     ensure_directory(settings.data_directory)
-    
+
     logger = setup_logger(
         name="cineops",
         log_level=settings.log_level,
     )
-    
+
     logger.info("Starting CineOps AI Application...")
     logger.info(f"Environment: {settings.app_env.value}")
 
@@ -38,11 +38,11 @@ async def main() -> None:
         logger.info("Executing recommendation pipeline...")
         # pipeline = container.recommendation_pipeline
         # await pipeline.execute()
-        
+
         # Simulate some work
         await asyncio.sleep(1)
         logger.info("Pipeline execution completed successfully.")
-        
+
     except Exception:
         logger.exception("Pipeline execution failed")
         sys.exit(1)

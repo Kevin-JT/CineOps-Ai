@@ -33,7 +33,7 @@ def async_retry(
     """
 
     def decorator(
-        func: Callable[..., Coroutine[Any, Any, T]]
+        func: Callable[..., Coroutine[Any, Any, T]],
     ) -> Callable[..., Coroutine[Any, Any, T]]:
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
@@ -48,7 +48,9 @@ def async_retry(
                         logger.error(
                             f"Final attempt {attempt}/{max_attempts} failed for {func.__name__}: {e!s}"
                         )
-                        raise CineOpsError(f"Operation {func.__name__} failed after {max_attempts} attempts.") from e
+                        raise CineOpsError(
+                            f"Operation {func.__name__} failed after {max_attempts} attempts."
+                        ) from e
 
                     logger.warning(
                         f"Attempt {attempt}/{max_attempts} failed for {func.__name__}: {e!s}. "

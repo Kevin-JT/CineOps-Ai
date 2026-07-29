@@ -9,12 +9,10 @@ class CineOpsError(Exception):
     """
 
 
-
 class ConfigurationError(CineOpsError):
     """
     Raised when there is an issue with the application configuration.
     """
-
 
 
 class ProviderError(CineOpsError):
@@ -23,16 +21,13 @@ class ProviderError(CineOpsError):
     """
 
 
-
 class RepositoryError(CineOpsError):
     """
     Raised when a storage repository operation fails.
     """
 
 
-
 class ValidationError(CineOpsError):
     """
     Raised when data validation fails.
     """
-
