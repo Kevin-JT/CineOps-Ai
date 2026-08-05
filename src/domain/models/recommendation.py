@@ -18,6 +18,9 @@ class Recommendation(BaseModel):
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
+import uuid
+
+
 @dataclass
 class RecommendationLog:
     """Domain model for persisting AI generation logs."""
@@ -27,3 +30,5 @@ class RecommendationLog:
     model: str
     response_time: float
     status: str
+    id: uuid.UUID | None = None
+    created_at: datetime | None = None

@@ -2,6 +2,7 @@ import json
 import uuid
 from collections.abc import Sequence
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.domain.models.recommendation import RecommendationLog
@@ -38,12 +39,35 @@ class SQLAlchemyRecommendationRepository(RecommendationRepository[Recommendation
 
         return entity
 
+    def _to_domain(self, db_model: Recommendation) -> RecommendationLog:
+        return RecommendationLog(
+            prompt=db_model.prompt,
+            response=json.dumps(db_model.recommendations),
+            model=db_model.model,
+            response_time=db_model.response_time,
+            status=db_model.status,
+            id=db_model.id,
+            created_at=db_model.created_at,
+        )
+
     async def get(self, id: uuid.UUID) -> RecommendationLog | None:
-        # Not heavily used in current flow; left abstract representation
-        pass
+        async with self._session_factory() as session:
+            db_model = await session.get(Recommendation, id)
+            if db_model:
+                return self._to_domain(db_model)
+            return None
 
     async def get_all(self) -> Sequence[RecommendationLog]:
-        return []
+        async with self._session_factory() as session:
+            result = await session.execute(select(Recommendation))
+            db_models = result.scalars().all()
+            return [self._to_domain(model) for model in db_models]
 
     async def delete(self, id: uuid.UUID) -> bool:
-        return False
+        async with self._session_factory() as session:
+            db_model = await session.get(Recommendation, id)
+            if db_model:
+                await session.delete(db_model)
+                await session.commit()
+                return True
+            return False

@@ -1,4 +1,6 @@
 import logging
+import uuid
+from collections.abc import Sequence
 from typing import Any
 
 from pydantic import ValidationError
@@ -69,6 +71,21 @@ class RecommendationService:
                     logger.error(f"Failed to persist recommendation log: {e}")
 
         return self._parse_response(response_text, items)
+
+    async def get_recommendation_log(self, id: uuid.UUID) -> Any:
+        if not self.repository:
+            raise CineOpsError("Repository is not configured.")
+        return await self.repository.get(id)
+
+    async def get_all_recommendation_logs(self) -> Sequence[Any]:
+        if not self.repository:
+            raise CineOpsError("Repository is not configured.")
+        return await self.repository.get_all()  # type: ignore[no-any-return]
+
+    async def delete_recommendation_log(self, id: uuid.UUID) -> bool:
+        if not self.repository:
+            raise CineOpsError("Repository is not configured.")
+        return await self.repository.delete(id)  # type: ignore[no-any-return]
 
     def _parse_response(
         self, response_text: str, items: list[MediaItem]

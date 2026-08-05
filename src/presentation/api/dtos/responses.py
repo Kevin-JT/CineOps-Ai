@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
@@ -11,6 +12,18 @@ class GeneratedCaptionResponse(BaseModel):
             "example": {"caption": "Dive into the mind-bending world of dreams! 🌀💤"}
         }
     )
+
+
+class RecommendationLogResponse(BaseModel):
+    id: uuid.UUID
+    prompt: str
+    response: str
+    model: str
+    response_time: float
+    status: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GeneratedHashtagsResponse(BaseModel):
