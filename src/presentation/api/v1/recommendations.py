@@ -61,9 +61,14 @@ async def generate_recommendations(
     )
 
 
+from src.domain.models.user import User
+from src.presentation.api.dependencies import get_current_user
+
+
 @router.get("", response_model=list[RecommendationLogResponse])
 async def get_all_recommendation_logs(
     service: RecommendationService = Depends(get_recommendation_service),
+    current_user: User = Depends(get_current_user),
 ) -> list[RecommendationLogResponse]:
     logs = await service.get_all_recommendation_logs()
     return logs  # type: ignore
@@ -73,6 +78,7 @@ async def get_all_recommendation_logs(
 async def get_recommendation_log(
     log_id: uuid.UUID,
     service: RecommendationService = Depends(get_recommendation_service),
+    current_user: User = Depends(get_current_user),
 ) -> RecommendationLogResponse:
     log = await service.get_recommendation_log(log_id)
     if not log:
@@ -87,6 +93,7 @@ async def get_recommendation_log(
 async def delete_recommendation_log(
     log_id: uuid.UUID,
     service: RecommendationService = Depends(get_recommendation_service),
+    current_user: User = Depends(get_current_user),
 ) -> None:
     deleted = await service.delete_recommendation_log(log_id)
     if not deleted:

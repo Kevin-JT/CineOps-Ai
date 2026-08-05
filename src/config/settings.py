@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     telegram_bot_token: str
     telegram_chat_id: str
 
+    # JWT Authentication
+    jwt_secret_key: str = "change-me-in-production-jwt"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 15
+    refresh_token_expire_minutes: int = 10080  # 7 days
+
     # Infrastructure
     jikan_base_url: str = "https://api.jikan.moe/v4"
     data_directory: str = "data"

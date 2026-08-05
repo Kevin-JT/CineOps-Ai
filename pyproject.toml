@@ -20,6 +20,9 @@ dependencies = [
     "sqlalchemy>=2.0.51",
     "alembic>=1.18.5",
     "psycopg[binary]>=3.3.4",
+    "pyjwt>=2.13.0",
+    "bcrypt>=5.0.0",
+    "email-validator>=2.3.0",
 ]
 
 [dependency-groups]

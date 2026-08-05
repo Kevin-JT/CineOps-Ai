@@ -9,8 +9,12 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from src.domain.models.recommendation import RecommendationLog
+from src.domain.models.user import User
 from src.presentation.api.app import create_app
-from src.presentation.api.dependencies import get_recommendation_service
+from src.presentation.api.dependencies import (
+    get_current_user,
+    get_recommendation_service,
+)
 
 
 @pytest.fixture
@@ -35,6 +39,7 @@ def test_get_all_recommendation_logs(
 ) -> None:
     app = cast(FastAPI, client.app)
     app.dependency_overrides[get_recommendation_service] = lambda: mock_service
+    app.dependency_overrides[get_current_user] = lambda: User(email="test@test.com", hashed_password="pwd")
 
     dt = datetime.now(UTC)
     uid = uuid.uuid4()
@@ -65,6 +70,7 @@ def test_get_recommendation_log(
 ) -> None:
     app = cast(FastAPI, client.app)
     app.dependency_overrides[get_recommendation_service] = lambda: mock_service
+    app.dependency_overrides[get_current_user] = lambda: User(email="test@test.com", hashed_password="pwd")
 
     dt = datetime.now(UTC)
     uid = uuid.uuid4()
@@ -92,6 +98,7 @@ def test_get_recommendation_log_not_found(
 ) -> None:
     app = cast(FastAPI, client.app)
     app.dependency_overrides[get_recommendation_service] = lambda: mock_service
+    app.dependency_overrides[get_current_user] = lambda: User(email="test@test.com", hashed_password="pwd")
 
     mock_service.get_recommendation_log.return_value = None
 
@@ -109,6 +116,7 @@ def test_delete_recommendation_log(
 ) -> None:
     app = cast(FastAPI, client.app)
     app.dependency_overrides[get_recommendation_service] = lambda: mock_service
+    app.dependency_overrides[get_current_user] = lambda: User(email="test@test.com", hashed_password="pwd")
 
     mock_service.delete_recommendation_log.return_value = True
 
@@ -126,6 +134,7 @@ def test_delete_recommendation_log_not_found(
 ) -> None:
     app = cast(FastAPI, client.app)
     app.dependency_overrides[get_recommendation_service] = lambda: mock_service
+    app.dependency_overrides[get_current_user] = lambda: User(email="test@test.com", hashed_password="pwd")
 
     mock_service.delete_recommendation_log.return_value = False
 
@@ -136,3 +145,9 @@ def test_delete_recommendation_log_not_found(
         assert response.status_code == 404
     finally:
         app.dependency_overrides.clear()
+
+
+def test_history_endpoints_unauthorized(client: TestClient, api_headers: dict[str, str]) -> None:
+    # No token provided, and get_current_user is NOT overridden
+    response = client.get("/api/v1/recommendations", headers=api_headers)
+    assert response.status_code == 401

@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Request, Security, status
+from fastapi import Depends, HTTPException, Request, Security, status
 from fastapi.security import APIKeyHeader
 
 from src.application.services.caption import CaptionGenerationService
@@ -45,3 +45,34 @@ def get_hashtag_service(request: Request) -> HashtagGenerationService:
 
 def get_coordinator(request: Request) -> WorkflowCoordinator:
     return get_container(request).coordinator
+
+
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from src.application.services.auth import AuthService
+from src.domain.models.user import User
+
+bearer_scheme = HTTPBearer(auto_error=False)
+
+def get_auth_service(request: Request) -> AuthService:
+    return get_container(request).auth_service
+
+async def get_current_user(
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service),
+    token: HTTPAuthorizationCredentials | None = Security(bearer_scheme)
+) -> User:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user = await auth_service.get_user_from_token(token.credentials)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found or token invalid",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user

@@ -114,9 +114,30 @@ class Container:
             providers=[self.tmdb_provider, self.jikan_provider]
         )
         self.prompt_builder = PromptBuilder()
-        self.recommendation_service = RecommendationService(
-            self.gemini_provider, self.prompt_builder
+
+        # Database session factory
+        from src.infrastructure.database.database import AsyncSessionLocal
+        
+        self.db_session_factory = AsyncSessionLocal
+
+        # Data Access Repositories
+        from src.infrastructure.repositories.sqlalchemy_recommendation_repository import (
+            SQLAlchemyRecommendationRepository,
         )
+        self.db_recommendation_repo = SQLAlchemyRecommendationRepository(self.db_session_factory)
+        
+        from src.infrastructure.repositories.sqlalchemy_user_repository import (
+            SQLAlchemyUserRepository,
+        )
+        self.user_repo = SQLAlchemyUserRepository(self.db_session_factory)
+
+        self.recommendation_service = RecommendationService(
+            self.gemini_provider, self.prompt_builder, repository=self.db_recommendation_repo
+        )
+        
+        from src.application.services.auth import AuthService
+        self.auth_service = AuthService(repository=self.user_repo)
+        
         self.caption_service = CaptionGenerationService(self.gemini_provider)
         self.hashtag_service = HashtagGenerationService(self.gemini_provider)
         self.export_provider = LocalExportProvider(output_dir="output")
