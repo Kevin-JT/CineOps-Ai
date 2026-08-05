@@ -10,3 +10,4 @@ logs/*.log
 data/*.db
 data/*.json
 !data/.gitkeep
+docs/
