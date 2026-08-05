@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -17,30 +18,55 @@ class RecommendationService:
     Service responsible for orchestrating the AI to generate a recommendation.
     """
 
-    def __init__(self, ai_provider: AIProvider, prompt_builder: PromptBuilder) -> None:
+    def __init__(
+        self,
+        ai_provider: AIProvider,
+        prompt_builder: PromptBuilder,
+        repository: Any = None,
+    ) -> None:
         self.ai_provider = ai_provider
         self.prompt_builder = prompt_builder
+        self.repository = repository
 
     async def generate_recommendation(self, items: list[MediaItem]) -> Recommendation:
         """
         Constructs a prompt based on the provided media items and requests an AI recommendation.
-
-        Args:
-            items: The top ranked items to choose from.
-
-        Returns:
-            A Recommendation object.
-
-        Raises:
-            CineOpsError: If the AI response is invalid or missing.
+        Persists the generation log to the database.
         """
+        import time
+
+        from src.domain.models.recommendation import RecommendationLog
+
         if not items:
             raise ValueError("Cannot generate recommendation without media items.")
 
         prompt = self.prompt_builder.build_recommendation_prompt(items)
         logger.info("Sending prompt to AI provider...")
 
-        response_text = await self.ai_provider.generate_recommendations(prompt)
+        start_time = time.time()
+        status = "success"
+        response_text = ""
+
+        try:
+            response_text = await self.ai_provider.generate_recommendations(prompt)
+        except Exception as e:
+            status = "error"
+            response_text = str(e)
+            raise
+        finally:
+            response_time = time.time() - start_time
+            if self.repository:
+                try:
+                    log_entry = RecommendationLog(
+                        prompt=prompt,
+                        response=response_text,
+                        model=getattr(self.ai_provider, "_model", "unknown"),
+                        response_time=response_time,
+                        status=status,
+                    )
+                    await self.repository.create(log_entry)
+                except Exception as e:  # noqa: BLE001
+                    logger.error(f"Failed to persist recommendation log: {e}")
 
         return self._parse_response(response_text, items)
 
