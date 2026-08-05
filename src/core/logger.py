@@ -41,7 +41,10 @@ class JSONFormatter(logging.Formatter):
         if execution_id:
             log_data["execution_id"] = execution_id
 
-        return json.dumps(log_data)
+        return json.dumps(
+            log_data,
+            default=lambda x: x.isoformat() if hasattr(x, "isoformat") else str(x),
+        )
 
 
 def setup_logger(

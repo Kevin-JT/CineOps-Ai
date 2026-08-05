@@ -39,7 +39,7 @@ class JsonHistoryRepository(HistoryRepository):
     def _save_to_disk(self) -> None:
         try:
             with open(self._file_path, "w", encoding="utf-8") as f:
-                data = {k: v.model_dump() for k, v in self._history.items()}
+                data = {k: v.model_dump(mode="json") for k, v in self._history.items()}
                 json.dump(data, f, indent=2)
         except (OSError, ValueError, KeyError) as e:
             logger.error(f"Failed to save history to {self._file_path}: {e}")

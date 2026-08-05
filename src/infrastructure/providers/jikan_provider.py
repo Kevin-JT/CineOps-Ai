@@ -93,7 +93,7 @@ class JikanProvider(MediaProvider):
         if self._cache_provider:
             import json
 
-            serialized = json.dumps([item.model_dump() for item in items])
+            serialized = json.dumps([item.model_dump(mode="json") for item in items])
             await self._cache_provider.set(
                 cache_key, serialized, ttl_seconds=self._cache_ttl_seconds
             )

@@ -42,7 +42,10 @@ class SQLAlchemyRecommendationRepository(RecommendationRepository[Recommendation
     def _to_domain(self, db_model: Recommendation) -> RecommendationLog:
         return RecommendationLog(
             prompt=db_model.prompt,
-            response=json.dumps(db_model.recommendations),
+            response=json.dumps(
+                db_model.recommendations,
+                default=lambda x: x.isoformat() if hasattr(x, "isoformat") else str(x),
+            ),
             model=db_model.model,
             response_time=db_model.response_time,
             status=db_model.status,
