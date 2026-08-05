@@ -185,13 +185,15 @@ async def test_generate_recommendation_cache_hit() -> None:
     provider = AsyncMock(spec=AIProvider)
     # The provider should NOT be called on a cache hit
     provider.generate_recommendations.side_effect = Exception("Should not be called")
-    
+
     prompt_builder = PromptBuilder()
     mock_repo = AsyncMock()
     mock_cache = AsyncMock()
     mock_cache.get.return_value = ai_response
 
-    service = RecommendationService(provider, prompt_builder, repository=mock_repo, cache=mock_cache)
+    service = RecommendationService(
+        provider, prompt_builder, repository=mock_repo, cache=mock_cache
+    )
 
     items = [MediaItem(id="1", title="A", overview="A", media_type="movie")]
     rec = await service.generate_recommendation(items)
@@ -222,20 +224,22 @@ async def test_generate_recommendation_cache_miss() -> None:
     mock_cache = AsyncMock()
     mock_cache.get.return_value = None
 
-    service = RecommendationService(provider, prompt_builder, repository=mock_repo, cache=mock_cache)
+    service = RecommendationService(
+        provider, prompt_builder, repository=mock_repo, cache=mock_cache
+    )
 
     items = [MediaItem(id="1", title="A", overview="A", media_type="movie")]
     rec = await service.generate_recommendation(items)
 
     assert rec.id == "rec_1"
     assert rec.confidence_score == 90.0
-    
+
     mock_cache.get.assert_awaited_once()
     mock_cache.set.assert_awaited_once()
-    
+
     # Check TTL is set to 86400
     args, kwargs = mock_cache.set.call_args
     assert kwargs.get("ttl_seconds") == 86400
     assert args[1] == ai_response
-    
+
     mock_repo.create.assert_awaited_once()

@@ -46,7 +46,7 @@ class RecommendationService:
             raise ValueError("Cannot generate recommendation without media items.")
 
         prompt = self.prompt_builder.build_recommendation_prompt(items)
-        
+
         # Check Cache
         cache_key = f"rec_prompt:{hashlib.sha256(prompt.encode('utf-8')).hexdigest()}"
         if self.cache:
@@ -81,7 +81,7 @@ class RecommendationService:
                     await self.repository.create(log_entry)
                 except Exception as e:  # noqa: BLE001
                     logger.error(f"Failed to persist recommendation log: {e}")
-                    
+
         # Store in Cache
         if self.cache and status == "success":
             await self.cache.set(cache_key, response_text, ttl_seconds=86400)

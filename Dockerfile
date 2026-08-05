@@ -58,5 +58,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')" || exit 1
 
-# Start the FastAPI application via uvicorn
-CMD ["uvicorn", "src.presentation.api.app:create_app", "--host", "0.0.0.0", "--port", "8000", "--factory"]
+# Start the FastAPI application via uvicorn, running migrations first
+CMD ["sh", "-c", "alembic upgrade head && uvicorn src.presentation.api.app:create_app --host 0.0.0.0 --port 8000 --factory"]

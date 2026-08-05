@@ -21,8 +21,7 @@ class AuthService:
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(
-            plain_password.encode("utf-8"),
-            hashed_password.encode("utf-8")
+            plain_password.encode("utf-8"), hashed_password.encode("utf-8")
         )
 
     def get_password_hash(self, password: str) -> str:
@@ -98,11 +97,11 @@ class AuthService:
         payload = self.decode_token(token)
         if payload.get("type") != "access":
             raise CineOpsError("Invalid token type")
-        
+
         email = payload.get("sub")
         if not email:
             return None
-            
+
         return await self._repository.get_by_email(email)
 
     async def refresh_access_token(self, refresh_token: str) -> str:
@@ -112,13 +111,13 @@ class AuthService:
         payload = self.decode_token(refresh_token)
         if payload.get("type") != "refresh":
             raise CineOpsError("Invalid token type")
-            
+
         email = payload.get("sub")
         if not email:
             raise CineOpsError("Invalid token subject")
-            
+
         user = await self._repository.get_by_email(email)
         if not user:
             raise CineOpsError("User not found")
-            
+
         return self.create_access_token(user.email)

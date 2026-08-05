@@ -54,13 +54,15 @@ from src.domain.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
+
 def get_auth_service(request: Request) -> AuthService:
     return get_container(request).auth_service
+
 
 async def get_current_user(
     request: Request,
     auth_service: AuthService = Depends(get_auth_service),
-    token: HTTPAuthorizationCredentials | None = Security(bearer_scheme)
+    token: HTTPAuthorizationCredentials | None = Security(bearer_scheme),
 ) -> User:
     if not token:
         raise HTTPException(
