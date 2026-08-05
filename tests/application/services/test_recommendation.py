@@ -71,3 +71,99 @@ async def test_generate_recommendation_no_items() -> None:
     service = RecommendationService(MockAIProvider("{}"), prompt_builder)
     with pytest.raises(ValueError, match="without media items"):
         await service.generate_recommendation([])
+
+
+import uuid
+from unittest.mock import AsyncMock
+
+from src.domain.models.recommendation import RecommendationLog
+
+
+@pytest.mark.asyncio
+async def test_generate_recommendation_with_repo() -> None:
+    ai_response = """
+    {
+      "selected_id": "1",
+      "confidence_score": 90.0,
+      "target_audience": "test",
+      "reasoning_why_now": "test",
+      "reasoning_audience_appeal": "test",
+      "caption": "test",
+      "hashtags": ["test"]
+    }
+    """
+    provider = MockAIProvider(ai_response)
+    prompt_builder = PromptBuilder()
+    mock_repo = AsyncMock()
+    service = RecommendationService(provider, prompt_builder, repository=mock_repo)
+
+    items = [MediaItem(id="1", title="A", overview="A", media_type="movie")]
+    await service.generate_recommendation(items)
+
+    mock_repo.create.assert_awaited_once()
+    created_log = mock_repo.create.call_args[0][0]
+    assert isinstance(created_log, RecommendationLog)
+    assert created_log.status == "success"
+    assert created_log.response == ai_response
+
+
+class MockErrorProvider(AIProvider):
+    async def generate_recommendations(self, prompt: str) -> str:
+        raise ValueError("Provider Failed")
+
+
+@pytest.mark.asyncio
+async def test_generate_recommendation_provider_error() -> None:
+    provider = MockErrorProvider()
+    prompt_builder = PromptBuilder()
+    mock_repo = AsyncMock()
+    service = RecommendationService(provider, prompt_builder, repository=mock_repo)
+
+    items = [MediaItem(id="1", title="A", overview="A", media_type="movie")]
+    with pytest.raises(ValueError, match="Provider Failed"):
+        await service.generate_recommendation(items)
+
+    mock_repo.create.assert_awaited_once()
+    created_log = mock_repo.create.call_args[0][0]
+    assert created_log.status == "error"
+    assert "Provider Failed" in created_log.response
+
+
+@pytest.mark.asyncio
+async def test_service_crud_methods() -> None:
+    provider = MockAIProvider("{}")
+    prompt_builder = PromptBuilder()
+    mock_repo = AsyncMock()
+    service = RecommendationService(provider, prompt_builder, repository=mock_repo)
+
+    uid = uuid.uuid4()
+
+    # get
+    await service.get_recommendation_log(uid)
+    mock_repo.get.assert_awaited_once_with(uid)
+
+    # get all
+    await service.get_all_recommendation_logs()
+    mock_repo.get_all.assert_awaited_once()
+
+    # delete
+    await service.delete_recommendation_log(uid)
+    mock_repo.delete.assert_awaited_once_with(uid)
+
+
+@pytest.mark.asyncio
+async def test_service_crud_missing_repo() -> None:
+    provider = MockAIProvider("{}")
+    prompt_builder = PromptBuilder()
+    service = RecommendationService(provider, prompt_builder, repository=None)
+
+    uid = uuid.uuid4()
+
+    with pytest.raises(CineOpsError, match="not configured"):
+        await service.get_recommendation_log(uid)
+
+    with pytest.raises(CineOpsError, match="not configured"):
+        await service.get_all_recommendation_logs()
+
+    with pytest.raises(CineOpsError, match="not configured"):
+        await service.delete_recommendation_log(uid)
