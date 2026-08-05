@@ -25,16 +25,19 @@ class RecommendationService:
         ai_provider: AIProvider,
         prompt_builder: PromptBuilder,
         repository: Any = None,
+        cache: Any = None,
     ) -> None:
         self.ai_provider = ai_provider
         self.prompt_builder = prompt_builder
         self.repository = repository
+        self.cache = cache
 
     async def generate_recommendation(self, items: list[MediaItem]) -> Recommendation:
         """
         Constructs a prompt based on the provided media items and requests an AI recommendation.
-        Persists the generation log to the database.
+        Checks cache first. Persists the generation log to the database on cache miss.
         """
+        import hashlib
         import time
 
         from src.domain.models.recommendation import RecommendationLog
@@ -43,6 +46,15 @@ class RecommendationService:
             raise ValueError("Cannot generate recommendation without media items.")
 
         prompt = self.prompt_builder.build_recommendation_prompt(items)
+        
+        # Check Cache
+        cache_key = f"rec_prompt:{hashlib.sha256(prompt.encode('utf-8')).hexdigest()}"
+        if self.cache:
+            cached_response = await self.cache.get(cache_key)
+            if cached_response:
+                logger.info("Cache hit for recommendation prompt.")
+                return self._parse_response(cached_response, items)
+
         logger.info("Sending prompt to AI provider...")
 
         start_time = time.time()
@@ -69,6 +81,10 @@ class RecommendationService:
                     await self.repository.create(log_entry)
                 except Exception as e:  # noqa: BLE001
                     logger.error(f"Failed to persist recommendation log: {e}")
+                    
+        # Store in Cache
+        if self.cache and status == "success":
+            await self.cache.set(cache_key, response_text, ttl_seconds=86400)
 
         return self._parse_response(response_text, items)
 

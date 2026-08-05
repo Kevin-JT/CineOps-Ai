@@ -24,6 +24,7 @@ def mock_auth_service() -> AsyncMock:
 
 from unittest.mock import AsyncMock, MagicMock
 
+
 def test_register_success(client: TestClient, mock_auth_service: AsyncMock) -> None:
     app = cast(FastAPI, client.app)
     app.dependency_overrides[get_auth_service] = lambda: mock_auth_service

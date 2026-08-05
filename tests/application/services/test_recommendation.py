@@ -167,3 +167,75 @@ async def test_service_crud_missing_repo() -> None:
 
     with pytest.raises(CineOpsError, match="not configured"):
         await service.delete_recommendation_log(uid)
+
+
+@pytest.mark.asyncio
+async def test_generate_recommendation_cache_hit() -> None:
+    ai_response = """
+    {
+      "selected_id": "1",
+      "confidence_score": 99.0,
+      "target_audience": "Cache test",
+      "reasoning_why_now": "Fast",
+      "reasoning_audience_appeal": "Fast",
+      "caption": "Cached",
+      "hashtags": ["#cache"]
+    }
+    """
+    provider = AsyncMock(spec=AIProvider)
+    # The provider should NOT be called on a cache hit
+    provider.generate_recommendations.side_effect = Exception("Should not be called")
+    
+    prompt_builder = PromptBuilder()
+    mock_repo = AsyncMock()
+    mock_cache = AsyncMock()
+    mock_cache.get.return_value = ai_response
+
+    service = RecommendationService(provider, prompt_builder, repository=mock_repo, cache=mock_cache)
+
+    items = [MediaItem(id="1", title="A", overview="A", media_type="movie")]
+    rec = await service.generate_recommendation(items)
+
+    assert rec.id == "rec_1"
+    assert rec.confidence_score == 99.0
+    mock_cache.get.assert_awaited_once()
+    mock_cache.set.assert_not_called()
+    mock_repo.create.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_generate_recommendation_cache_miss() -> None:
+    ai_response = """
+    {
+      "selected_id": "1",
+      "confidence_score": 90.0,
+      "target_audience": "Miss test",
+      "reasoning_why_now": "Slow",
+      "reasoning_audience_appeal": "Slow",
+      "caption": "Miss",
+      "hashtags": ["#miss"]
+    }
+    """
+    provider = MockAIProvider(ai_response)
+    prompt_builder = PromptBuilder()
+    mock_repo = AsyncMock()
+    mock_cache = AsyncMock()
+    mock_cache.get.return_value = None
+
+    service = RecommendationService(provider, prompt_builder, repository=mock_repo, cache=mock_cache)
+
+    items = [MediaItem(id="1", title="A", overview="A", media_type="movie")]
+    rec = await service.generate_recommendation(items)
+
+    assert rec.id == "rec_1"
+    assert rec.confidence_score == 90.0
+    
+    mock_cache.get.assert_awaited_once()
+    mock_cache.set.assert_awaited_once()
+    
+    # Check TTL is set to 86400
+    args, kwargs = mock_cache.set.call_args
+    assert kwargs.get("ttl_seconds") == 86400
+    assert args[1] == ai_response
+    
+    mock_repo.create.assert_awaited_once()

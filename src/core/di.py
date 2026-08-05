@@ -131,8 +131,17 @@ class Container:
         )
         self.user_repo = SQLAlchemyUserRepository(self.db_session_factory)
 
+        from redis.asyncio import Redis
+
+        from src.infrastructure.providers.redis_cache_provider import RedisCacheProvider
+        self.redis_client = Redis.from_url(self.settings.redis_url)
+        self.redis_cache_provider = RedisCacheProvider(self.redis_client)
+
         self.recommendation_service = RecommendationService(
-            self.gemini_provider, self.prompt_builder, repository=self.db_recommendation_repo
+            self.gemini_provider, 
+            self.prompt_builder, 
+            repository=self.db_recommendation_repo,
+            cache=self.redis_cache_provider
         )
         
         from src.application.services.auth import AuthService
@@ -163,3 +172,5 @@ class Container:
         Cleanly shuts down all resources and connections within the container.
         """
         await self.http_client.aclose()
+        if hasattr(self, 'redis_cache_provider'):
+            await self.redis_cache_provider.close()

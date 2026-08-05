@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/cineops"
 
+    # Redis
+    redis_url: str = "redis://localhost:6379/0"
+
     # Settings Configuration
     model_config = SettingsConfigDict(
         env_file=".env",
