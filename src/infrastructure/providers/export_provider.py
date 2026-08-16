@@ -40,9 +40,21 @@ class LocalExportProvider(ExportProvider):
             f"**ID**: {recommendation.id}\n"
             f"**Target Audience**: {recommendation.target_audience}\n"
             f"**Viral Score**: {recommendation.viral_score}/100\n\n"
-            f"## Reasoning & Content\n\n"
-            f"{recommendation.reasoning}\n\n"
         )
+
+        if recommendation.opportunity_score:
+            opp = recommendation.opportunity_score
+            bd = opp.breakdown
+            md_content += (
+                f"## Opportunity Score: {opp.final_score}/100 ({opp.category.value})\n\n"
+                f"### Breakdown\n"
+                f"- Content Potential: {bd.content_score}/100\n"
+                f"- Short-form Potential: {bd.short_form_score}/100\n"
+                f"- Source Quality: {bd.source_score}/100\n"
+                f"- Historical Evidence: {bd.historical_score}/100\n\n"
+            )
+
+        md_content += f"## Reasoning & Content\n\n" f"{recommendation.reasoning}\n\n"
 
         if recommendation.content_strategy:
             st = recommendation.content_strategy

@@ -395,6 +395,121 @@ async def test_workflow_coordinator_with_performance_analyzer() -> None:
 
 
 @pytest.mark.asyncio
+async def test_workflow_coordinator_with_quality_engine() -> None:
+    from src.domain.services.quality_engine import RecommendationQualityEngine
+
+    quality_engine = RecommendationQualityEngine()
+
+    trending_mock = AsyncMock()
+    trending_mock.fetch_all_trending.return_value = [
+        MediaItem(
+            id="1",
+            title="Movie",
+            overview="",
+            media_type="movie",
+            rating=8.5,
+            popularity=80.0,
+        )
+    ]
+    dedup_mock = AsyncMock()
+    dedup_mock.filter_duplicates.return_value = [
+        MediaItem(
+            id="1",
+            title="Movie",
+            overview="",
+            media_type="movie",
+            rating=8.5,
+            popularity=80.0,
+        )
+    ]
+    filter_mock = Mock()
+    filter_mock.filter_items.return_value = [
+        MediaItem(
+            id="1",
+            title="Movie",
+            overview="",
+            media_type="movie",
+            rating=8.5,
+            popularity=80.0,
+        )
+    ]
+    ranking_mock = Mock()
+    ranking_mock.rank_by_popularity.return_value = [
+        MediaItem(
+            id="1",
+            title="Movie",
+            overview="",
+            media_type="movie",
+            rating=8.5,
+            popularity=80.0,
+        )
+    ]
+
+    strategy = ContentStrategy(
+        video_hook="Hook",
+        on_screen_text=OnScreenText(opening="O", middle="M", ending="E"),
+        editing_instructions="Edit",
+        caption="Cap",
+        hashtags=["#a", "#b", "#c", "#d", "#e"],
+        first_comment="Comm",
+    )
+
+    rec_mock = AsyncMock()
+    rec_mock.generate_recommendation.return_value = Recommendation(
+        id="rec_1",
+        items=[
+            MediaItem(
+                id="1",
+                title="Movie",
+                overview="",
+                media_type="movie",
+                rating=8.5,
+                popularity=80.0,
+            )
+        ],
+        target_audience="General",
+        reasoning="Reason",
+        confidence_score=90.0,
+        content_strategy=strategy,
+    )
+
+    scoring_mock = Mock()
+    scoring_mock.calculate_score.return_value = ViralScore(
+        score=85.0,
+        factors=ViralScoreFactors(
+            popularity=80.0,
+            rating=8.5,
+            recognition=80.0,
+            visual_impact=85.0,
+            emotional_impact=70.0,
+            social_potential=90.0,
+        ),
+    )
+
+    notification_mock = AsyncMock()
+
+    coordinator = WorkflowCoordinator(
+        trending_service=trending_mock,
+        deduplication_service=dedup_mock,
+        filter_service=filter_mock,
+        ranking_service=ranking_mock,
+        recommendation_service=rec_mock,
+        scoring_service=scoring_mock,
+        export_provider=AsyncMock(),
+        history_repo=AsyncMock(),
+        notification_provider=notification_mock,
+        quality_engine=quality_engine,
+    )
+
+    await coordinator.run_pipeline()
+
+    sent_msg = notification_mock.send_message.call_args[0][0]
+    assert "OPPORTUNITY SCORE" in sent_msg
+    assert "SCORE BREAKDOWN" in sent_msg
+    assert "Content Potential:" in sent_msg
+
+
+@pytest.mark.asyncio
 async def test_workflow_coordinator_aborts_early() -> None:
     trending_mock = AsyncMock()
     trending_mock.fetch_all_trending.return_value = []

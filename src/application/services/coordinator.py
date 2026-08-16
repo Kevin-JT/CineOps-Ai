@@ -13,6 +13,7 @@ from src.domain.models.scoring import ViralScoreFactors
 from src.domain.services.deduplication import DeduplicationService
 from src.domain.services.filtering import MediaFilterService
 from src.domain.services.performance_analyzer import PerformanceAnalyzer
+from src.domain.services.quality_engine import RecommendationQualityEngine
 from src.domain.services.ranking import RankingService
 from src.domain.services.scoring import ViralScoringService
 
@@ -37,6 +38,7 @@ class WorkflowCoordinator:
         notification_provider: NotificationProvider,
         source_provider: SourceProvider | None = None,
         performance_analyzer: PerformanceAnalyzer | None = None,
+        quality_engine: RecommendationQualityEngine | None = None,
     ) -> None:
         self.trending_service = trending_service
         self.deduplication_service = deduplication_service
@@ -49,11 +51,12 @@ class WorkflowCoordinator:
         self.notification_provider = notification_provider
         self.source_provider = source_provider
         self.performance_analyzer = performance_analyzer
+        self.quality_engine = quality_engine
 
     async def run_pipeline(self) -> None:
         """
         Executes the full pipeline:
-        Fetch -> Deduplicate -> Filter -> Rank -> Performance Analysis -> Recommend -> Score -> Discover Source -> Save -> Export -> Notify.
+        Fetch -> Deduplicate -> Filter -> Rank -> Performance Analysis -> Recommend -> Score -> Discover Source -> Quality Engine -> Save -> Export -> Notify.
         """
         logger.info("Starting CineOps AI recommendation pipeline...")
 
@@ -87,6 +90,7 @@ class WorkflowCoordinator:
             # 4b. Performance Analysis (Optional learning loop)
             performance_summary = None
             learning_insight = None
+            insight_result = None
             if self.performance_analyzer:
                 try:
                     perf_records = await self.history_repo.get_all_performance()
@@ -143,6 +147,21 @@ class WorkflowCoordinator:
                 except Exception as e:  # noqa: BLE001
                     logger.warning(f"YouTube discovery failed gracefully: {e}")
 
+            # 6c. Recommendation Quality Engine
+            if self.quality_engine:
+                try:
+                    opp_score = self.quality_engine.evaluate(
+                        recommendation=final_recommendation,
+                        selected_item=selected_item,
+                        youtube_source=final_recommendation.youtube_source,
+                        performance_result=insight_result,
+                    )
+                    final_recommendation = final_recommendation.model_copy(
+                        update={"opportunity_score": opp_score}
+                    )
+                except Exception as e:  # noqa: BLE001
+                    logger.warning(f"Quality engine evaluation failed gracefully: {e}")
+
             # 7. Save to History
             await self.history_repo.save(selected_item)
 
@@ -176,12 +195,39 @@ class WorkflowCoordinator:
                     else ""
                 )
 
+                quality_block = ""
+                if final_recommendation.opportunity_score:
+                    opp = final_recommendation.opportunity_score
+                    bd = opp.breakdown
+                    strengths_str = (
+                        "\n".join(f"• {s}" for s in opp.strengths)
+                        if opp.strengths
+                        else "• N/A"
+                    )
+                    weaknesses_str = (
+                        "\n".join(f"• {w}" for w in opp.weaknesses)
+                        if opp.weaknesses
+                        else "• N/A"
+                    )
+
+                    quality_block = (
+                        f"🎯 *OPPORTUNITY SCORE*: {opp.final_score}/100 ({opp.category.value})\n\n"
+                        f"📊 *SCORE BREAKDOWN*\n"
+                        f"Content Potential: {int(bd.content_score)}/100\n"
+                        f"Short-form Potential: {int(bd.short_form_score)}/100\n"
+                        f"Source Quality: {int(bd.source_score)}/100\n"
+                        f"Historical Evidence: {int(bd.historical_score)}/100\n\n"
+                        f"💪 *STRONG SIGNALS*\n"
+                        f"{strengths_str}\n\n"
+                        f"⚠️ *LIMITATIONS*\n"
+                        f"{weaknesses_str}\n\n"
+                    )
+
                 message = (
                     f"🎬 *CINEOPS CONTENT OPPORTUNITY*\n\n"
                     f"🎥 *MOVIE / SERIES / ANIME*\n"
                     f"{selected_item.title} ({selected_item.media_type})\n\n"
-                    f"🔥 *VIRAL OPPORTUNITY*\n"
-                    f"{int(viral_score_result.score)}/100\n\n"
+                    f"{quality_block}"
                     f"🎯 *TARGET AUDIENCE*\n"
                     f"{final_recommendation.target_audience}\n\n"
                     f"🪝 *HOOK*\n"

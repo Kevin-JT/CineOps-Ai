@@ -15,6 +15,7 @@ from src.core.circuit_breaker import CircuitBreaker
 from src.domain.services.deduplication import DeduplicationService
 from src.domain.services.filtering import MediaFilterService
 from src.domain.services.performance_analyzer import PerformanceAnalyzer
+from src.domain.services.quality_engine import RecommendationQualityEngine
 from src.domain.services.ranking import RankingService
 from src.domain.services.scoring import ViralScoringService
 from src.infrastructure.providers.export_provider import LocalExportProvider
@@ -121,6 +122,7 @@ class Container:
         self.ranking_service = RankingService()
         self.scoring_service = ViralScoringService()
         self.performance_analyzer = PerformanceAnalyzer()
+        self.quality_engine = RecommendationQualityEngine()
 
         # Application Services
         self.trending_service = TrendingService(
@@ -182,6 +184,7 @@ class Container:
             notification_provider=self.telegram_provider,
             source_provider=self.youtube_provider,
             performance_analyzer=self.performance_analyzer,
+            quality_engine=self.quality_engine,
         )
 
     @property
