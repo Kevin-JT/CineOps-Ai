@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     gemini_api_key: str
     telegram_bot_token: str
     telegram_chat_id: str
+    youtube_api_key: str | None = None
 
     # JWT Authentication
     jwt_secret_key: str = "change-me-in-production-jwt"

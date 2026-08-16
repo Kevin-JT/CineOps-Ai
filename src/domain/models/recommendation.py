@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from src.domain.models.ai_response import OnScreenText
 from src.domain.models.media_item import MediaItem
+from src.domain.models.youtube import YouTubeSource
 
 
 class ContentStrategy(BaseModel):
@@ -33,6 +34,7 @@ class Recommendation(BaseModel):
     viral_score: float = 0.0
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     content_strategy: ContentStrategy | None = None
+    youtube_source: YouTubeSource | None = None
 
 
 import uuid

@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 from src.domain.models.media_item import MediaItem
 from src.domain.models.recommendation import Recommendation
+
+if TYPE_CHECKING:
+    from src.domain.models.youtube import YouTubeSource
 
 
 class AIProvider(ABC):
@@ -51,4 +55,15 @@ class CacheProvider(ABC):
 
     @abstractmethod
     async def set(self, key: str, value: str, ttl_seconds: int | None = None) -> None:
+        pass
+
+
+class SourceProvider(ABC):
+    @abstractmethod
+    async def search_source(
+        self,
+        media_title: str,
+        media_type: str,
+        query_keywords: list[str] | None = None,
+    ) -> "YouTubeSource | None":
         pass

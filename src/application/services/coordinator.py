@@ -7,6 +7,7 @@ from src.domain.interfaces import (
     ExportProvider,
     HistoryRepository,
     NotificationProvider,
+    SourceProvider,
 )
 from src.domain.models.scoring import ViralScoreFactors
 from src.domain.services.deduplication import DeduplicationService
@@ -33,6 +34,7 @@ class WorkflowCoordinator:
         export_provider: ExportProvider,
         history_repo: HistoryRepository,
         notification_provider: NotificationProvider,
+        source_provider: SourceProvider | None = None,
     ) -> None:
         self.trending_service = trending_service
         self.deduplication_service = deduplication_service
@@ -43,11 +45,12 @@ class WorkflowCoordinator:
         self.export_provider = export_provider
         self.history_repo = history_repo
         self.notification_provider = notification_provider
+        self.source_provider = source_provider
 
     async def run_pipeline(self) -> None:
         """
         Executes the full pipeline:
-        Fetch -> Deduplicate -> Filter -> Rank -> Recommend -> Score -> Save -> Export -> Notify.
+        Fetch -> Deduplicate -> Filter -> Rank -> Recommend -> Score -> Discover Source -> Save -> Export -> Notify.
         """
         logger.info("Starting CineOps AI recommendation pipeline...")
 
@@ -102,6 +105,26 @@ class WorkflowCoordinator:
                 update={"viral_score": viral_score_result.score}
             )
 
+            # 6b. YouTube Source Discovery (Graceful optional enhancement)
+            if self.source_provider:
+                try:
+                    keywords = []
+                    if final_recommendation.content_strategy:
+                        keywords.append(
+                            final_recommendation.content_strategy.video_hook
+                        )
+                    yt_source = await self.source_provider.search_source(
+                        media_title=selected_item.title,
+                        media_type=selected_item.media_type,
+                        query_keywords=keywords,
+                    )
+                    if yt_source:
+                        final_recommendation = final_recommendation.model_copy(
+                            update={"youtube_source": yt_source}
+                        )
+                except Exception as e:  # noqa: BLE001
+                    logger.warning(f"YouTube discovery failed gracefully: {e}")
+
             # 7. Save to History
             await self.history_repo.save(selected_item)
 
@@ -111,6 +134,24 @@ class WorkflowCoordinator:
             # 9. Notify
             strategy = final_recommendation.content_strategy
             if strategy:
+                if final_recommendation.youtube_source:
+                    yt = final_recommendation.youtube_source
+                    source_block = (
+                        f"🎥 *YOUTUBE SOURCE*\n"
+                        f"Title: {yt.title}\n"
+                        f"Channel: {yt.channel_name}\n"
+                        f"Relevance: {int(yt.relevance_score)}/100\n\n"
+                        f"⏱ *TIMESTAMP*\n"
+                        f"Timestamp: Not verified\n\n"
+                        f"▶️ *SOURCE*\n"
+                        f"{yt.url}"
+                    )
+                else:
+                    source_block = (
+                        "⚠️ *SOURCE / CLIP*\n"
+                        "Not available — YouTube discovery skipped or no match found."
+                    )
+
                 message = (
                     f"🎬 *CINEOPS CONTENT OPPORTUNITY*\n\n"
                     f"🎥 *MOVIE / SERIES / ANIME*\n"
@@ -135,8 +176,7 @@ class WorkflowCoordinator:
                     f"{strategy.first_comment}\n\n"
                     f"🧠 *WHY THIS WORKS*\n"
                     f"{final_recommendation.reasoning}\n\n"
-                    f"⚠️ *SOURCE / CLIP*\n"
-                    f"Not available yet — YouTube discovery will be implemented in Phase 2."
+                    f"{source_block}"
                 )
             else:
                 message = (

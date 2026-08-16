@@ -21,6 +21,7 @@ from src.infrastructure.providers.gemini_provider import GeminiProvider
 from src.infrastructure.providers.jikan_provider import JikanProvider
 from src.infrastructure.providers.telegram_provider import TelegramProvider
 from src.infrastructure.providers.tmdb_provider import TMDbProvider
+from src.infrastructure.providers.youtube_provider import YouTubeProvider
 from src.infrastructure.repositories.json_repo import (
     JsonBlacklistRepository,
     JsonHistoryRepository,
@@ -67,6 +68,9 @@ class Container:
         self.telegram_cb = CircuitBreaker(
             "telegram", failure_threshold=5, recovery_timeout_sec=30.0
         )
+        self.youtube_cb = CircuitBreaker(
+            "youtube", failure_threshold=5, recovery_timeout_sec=30.0
+        )
 
         # Initialize providers (injecting circuit breakers and cache)
         self.tmdb_provider = TMDbProvider(
@@ -93,6 +97,13 @@ class Container:
             chat_id=self.settings.telegram_chat_id,
             client=self.http_client,
             circuit_breaker=self.telegram_cb,
+        )
+        self.youtube_provider = YouTubeProvider(
+            api_key=self.settings.youtube_api_key,
+            client=self.http_client,
+            circuit_breaker=self.youtube_cb,
+            cache_provider=self.cache_provider,
+            cache_ttl_seconds=self.settings.cache_ttl_seconds,
         )
 
         # Repositories (JSON-backed for persistence)
@@ -167,6 +178,7 @@ class Container:
             export_provider=self.export_provider,
             history_repo=self.history_repo,
             notification_provider=self.telegram_provider,
+            source_provider=self.youtube_provider,
         )
 
     @property

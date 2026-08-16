@@ -59,6 +59,17 @@ class LocalExportProvider(ExportProvider):
                 f"**First Comment**: {st.first_comment}\n\n"
             )
 
+        if recommendation.youtube_source:
+            yt = recommendation.youtube_source
+            md_content += (
+                f"## YouTube Source Candidate\n\n"
+                f"- **Title**: {yt.title}\n"
+                f"- **Channel**: {yt.channel_name}\n"
+                f"- **URL**: [{yt.url}]({yt.url})\n"
+                f"- **Relevance Score**: {yt.relevance_score}/100\n"
+                f"- **Timestamp**: Not verified\n\n"
+            )
+
         md_content += "## Selected Item\n\n"
 
         for item in recommendation.items:
