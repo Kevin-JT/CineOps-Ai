@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     cache_path: str = "data/cache.json"
     cache_ttl_seconds: int = 3600  # Default to 1 hour
 
+    # Multi-Candidate Strategy
+    candidate_count: int = 5
+    min_opportunity_score: int = 60
+
     # Scheduler
     scheduler_enabled: bool = False
     scheduler_interval_seconds: int = 86400  # Default to once a day (24 hours)

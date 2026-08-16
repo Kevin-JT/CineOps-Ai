@@ -1,7 +1,9 @@
+import asyncio
 import logging
 
 from src.application.services.recommendation import RecommendationService
 from src.application.services.trending import TrendingService
+from src.config.settings import Settings, get_settings
 from src.core.exceptions import CineOpsError
 from src.domain.interfaces import (
     ExportProvider,
@@ -9,10 +11,20 @@ from src.domain.interfaces import (
     NotificationProvider,
     SourceProvider,
 )
+from src.domain.models.candidate import EvaluatedCandidate
+from src.domain.models.media_item import MediaItem
+from src.domain.models.quality import (
+    OpportunityCategory,
+    OpportunityScore,
+    OpportunityScoreBreakdown,
+)
 from src.domain.models.scoring import ViralScoreFactors
 from src.domain.services.deduplication import DeduplicationService
 from src.domain.services.filtering import MediaFilterService
-from src.domain.services.performance_analyzer import PerformanceAnalyzer
+from src.domain.services.performance_analyzer import (
+    PerformanceAnalyzer,
+    PerformanceInsightResult,
+)
 from src.domain.services.quality_engine import RecommendationQualityEngine
 from src.domain.services.ranking import RankingService
 from src.domain.services.scoring import ViralScoringService
@@ -23,6 +35,7 @@ logger = logging.getLogger(__name__)
 class WorkflowCoordinator:
     """
     Orchestrates the entire recommendation lifecycle, coordinating Domain and Application services.
+    Supports multi-candidate parallel evaluation, deterministic selection, and failure isolation.
     """
 
     def __init__(
@@ -39,6 +52,7 @@ class WorkflowCoordinator:
         source_provider: SourceProvider | None = None,
         performance_analyzer: PerformanceAnalyzer | None = None,
         quality_engine: RecommendationQualityEngine | None = None,
+        settings: Settings | None = None,
     ) -> None:
         self.trending_service = trending_service
         self.deduplication_service = deduplication_service
@@ -52,11 +66,91 @@ class WorkflowCoordinator:
         self.source_provider = source_provider
         self.performance_analyzer = performance_analyzer
         self.quality_engine = quality_engine
+        self.settings = settings or get_settings()
+
+    async def _evaluate_single_candidate(
+        self,
+        candidate_item: MediaItem,
+        performance_summary: str | None,
+        insight_result: PerformanceInsightResult | None,
+    ) -> EvaluatedCandidate | None:
+        """
+        Evaluates a single candidate item through AI recommendation, YouTube discovery, and Quality Engine scoring.
+        Failures are trapped so one candidate failure does not break the entire pipeline.
+        """
+        try:
+            # 1. AI Recommendation Generation
+            rec = await self.recommendation_service.generate_recommendation(
+                [candidate_item], performance_summary=performance_summary
+            )
+
+            # 2. Viral Score calculation
+            factors = ViralScoreFactors(
+                popularity=min(candidate_item.popularity, 100.0),
+                rating=candidate_item.rating,
+                recognition=80.0,
+                visual_impact=85.0,
+                emotional_impact=70.0,
+                social_potential=90.0,
+            )
+            viral_result = self.scoring_service.calculate_score(factors)
+            rec = rec.model_copy(update={"viral_score": viral_result.score})
+
+            # 3. YouTube Source Discovery (isolated)
+            if self.source_provider:
+                try:
+                    keywords = []
+                    if rec.content_strategy:
+                        keywords.append(rec.content_strategy.video_hook)
+                    yt_source = await self.source_provider.search_source(
+                        media_title=candidate_item.title,
+                        media_type=candidate_item.media_type,
+                        query_keywords=keywords,
+                    )
+                    if yt_source:
+                        rec = rec.model_copy(update={"youtube_source": yt_source})
+                except Exception as e:  # noqa: BLE001
+                    logger.warning(
+                        f"YouTube discovery failed for '{candidate_item.title}': {e}"
+                    )
+
+            # 4. Recommendation Quality Engine Evaluation (isolated)
+            opp_score: OpportunityScore
+            if self.quality_engine:
+                opp_score = self.quality_engine.evaluate(
+                    recommendation=rec,
+                    selected_item=candidate_item,
+                    youtube_source=rec.youtube_source,
+                    performance_result=insight_result,
+                )
+            else:
+                opp_score = OpportunityScore(
+                    final_score=int(viral_result.score),
+                    category=OpportunityCategory.STRONG,
+                    breakdown=OpportunityScoreBreakdown(
+                        content_score=viral_result.score,
+                        short_form_score=viral_result.score,
+                        source_score=50.0,
+                        historical_score=50.0,
+                    ),
+                )
+
+            rec = rec.model_copy(update={"opportunity_score": opp_score})
+            return EvaluatedCandidate(
+                item=candidate_item,
+                recommendation=rec,
+                opportunity_score=opp_score,
+            )
+        except Exception:
+            logger.exception(
+                f"Candidate '{candidate_item.title}' evaluation failed gracefully."
+            )
+            return None
 
     async def run_pipeline(self) -> None:
         """
         Executes the full pipeline:
-        Fetch -> Deduplicate -> Filter -> Rank -> Performance Analysis -> Recommend -> Score -> Discover Source -> Quality Engine -> Save -> Export -> Notify.
+        Fetch -> Deduplicate -> Filter -> Initial Rank -> Multi-Candidate Parallel Evaluation -> Deterministic Selection -> Save -> Export -> Notify.
         """
         logger.info("Starting CineOps AI recommendation pipeline...")
 
@@ -83,9 +177,9 @@ class WorkflowCoordinator:
                 )
                 return
 
-            # 4. Rank & Select Top N
+            # 4. Rank & Select Candidate Pool
             ranked_items = self.ranking_service.rank_by_popularity(filtered_items)
-            top_items = ranked_items[:10]  # Pass top 10 to AI for context limit safety
+            candidate_pool = ranked_items[: self.settings.candidate_count]
 
             # 4b. Performance Analysis (Optional learning loop)
             performance_summary = None
@@ -103,69 +197,65 @@ class WorkflowCoordinator:
                 except Exception as e:  # noqa: BLE001
                     logger.warning(f"Performance analysis failed gracefully: {e}")
 
-            # 5. Generate Recommendation
-            recommendation = await self.recommendation_service.generate_recommendation(
-                top_items, performance_summary=performance_summary
+            # 5. Multi-Candidate Parallel Evaluation
+            logger.info(
+                f"Evaluating top {len(candidate_pool)} candidates concurrently..."
+            )
+            eval_tasks = [
+                self._evaluate_single_candidate(
+                    candidate_item=item,
+                    performance_summary=performance_summary,
+                    insight_result=insight_result,
+                )
+                for item in candidate_pool
+            ]
+            raw_results = await asyncio.gather(*eval_tasks, return_exceptions=True)
+
+            valid_candidates: list[EvaluatedCandidate] = [
+                r for r in raw_results if isinstance(r, EvaluatedCandidate)
+            ]
+
+            if not valid_candidates:
+                logger.warning("All candidate evaluations failed. Aborting pipeline.")
+                return
+
+            # 6. Deterministic Selection & Tie-Breaking
+            valid_candidates.sort(
+                key=lambda c: (
+                    c.opportunity_score.final_score,
+                    c.opportunity_score.breakdown.short_form_score,
+                    c.opportunity_score.breakdown.source_score,
+                    c.opportunity_score.breakdown.content_score,
+                    c.item.popularity,
+                ),
+                reverse=True,
             )
 
-            # 6. Calculate Viral Score
-            selected_item = recommendation.items[0]
-            factors = ViralScoreFactors(
-                popularity=min(
-                    selected_item.popularity, 100.0
-                ),  # Normalize for domain constraint
-                rating=selected_item.rating,
-                recognition=80.0,  # Assumed AI/Defaults for now
-                visual_impact=85.0,
-                emotional_impact=70.0,
-                social_potential=90.0,
-            )
-            viral_score_result = self.scoring_service.calculate_score(factors)
+            winner = valid_candidates[0]
+            alternatives = valid_candidates[1:4]  # Top 3 alternatives
 
-            # Since Recommendation is immutable, we create a new instance with the viral score
-            final_recommendation = recommendation.model_copy(
-                update={"viral_score": viral_score_result.score}
-            )
+            selected_item = winner.item
+            final_recommendation = winner.recommendation
 
-            # 6b. YouTube Source Discovery (Graceful optional enhancement)
-            if self.source_provider:
-                try:
-                    keywords = []
-                    if final_recommendation.content_strategy:
-                        keywords.append(
-                            final_recommendation.content_strategy.video_hook
-                        )
-                    yt_source = await self.source_provider.search_source(
-                        media_title=selected_item.title,
-                        media_type=selected_item.media_type,
-                        query_keywords=keywords,
-                    )
-                    if yt_source:
-                        final_recommendation = final_recommendation.model_copy(
-                            update={"youtube_source": yt_source}
-                        )
-                except Exception as e:  # noqa: BLE001
-                    logger.warning(f"YouTube discovery failed gracefully: {e}")
+            # Check Minimum Opportunity Score Threshold
+            threshold_warning = ""
+            if (
+                winner.opportunity_score.final_score
+                < self.settings.min_opportunity_score
+            ):
+                threshold_warning = (
+                    f"⚠️ *NOTE*: Best candidate scored {winner.opportunity_score.final_score}/100 "
+                    f"(below minimum target of {self.settings.min_opportunity_score}/100).\n\n"
+                )
+                logger.warning(
+                    f"Winner '{selected_item.title}' scored {winner.opportunity_score.final_score}, "
+                    f"which is below min_opportunity_score ({self.settings.min_opportunity_score})."
+                )
 
-            # 6c. Recommendation Quality Engine
-            if self.quality_engine:
-                try:
-                    opp_score = self.quality_engine.evaluate(
-                        recommendation=final_recommendation,
-                        selected_item=selected_item,
-                        youtube_source=final_recommendation.youtube_source,
-                        performance_result=insight_result,
-                    )
-                    final_recommendation = final_recommendation.model_copy(
-                        update={"opportunity_score": opp_score}
-                    )
-                except Exception as e:  # noqa: BLE001
-                    logger.warning(f"Quality engine evaluation failed gracefully: {e}")
-
-            # 7. Save to History
+            # 7. Save Winner to History
             await self.history_repo.save(selected_item)
 
-            # 8. Export
+            # 8. Export Winner
             await self.export_provider.export_recommendation(final_recommendation)
 
             # 9. Notify
@@ -195,39 +285,52 @@ class WorkflowCoordinator:
                     else ""
                 )
 
-                quality_block = ""
-                if final_recommendation.opportunity_score:
-                    opp = final_recommendation.opportunity_score
-                    bd = opp.breakdown
-                    strengths_str = (
-                        "\n".join(f"• {s}" for s in opp.strengths)
-                        if opp.strengths
-                        else "• N/A"
-                    )
-                    weaknesses_str = (
-                        "\n".join(f"• {w}" for w in opp.weaknesses)
-                        if opp.weaknesses
-                        else "• N/A"
+                opp = winner.opportunity_score
+                bd = opp.breakdown
+                strengths_str = (
+                    "\n".join(f"• {s}" for s in opp.strengths)
+                    if opp.strengths
+                    else "• N/A"
+                )
+                weaknesses_str = (
+                    "\n".join(f"• {w}" for w in opp.weaknesses)
+                    if opp.weaknesses
+                    else "• N/A"
+                )
+
+                quality_block = (
+                    f"🎯 *OPPORTUNITY SCORE*: {opp.final_score}/100 ({opp.category.value})\n\n"
+                    f"📊 *SCORE BREAKDOWN*\n"
+                    f"Content Potential: {int(bd.content_score)}/100\n"
+                    f"Short-form Potential: {int(bd.short_form_score)}/100\n"
+                    f"Source Quality: {int(bd.source_score)}/100\n"
+                    f"Historical Evidence: {int(bd.historical_score)}/100\n\n"
+                    f"💪 *WHY THIS WON*\n"
+                    f"{strengths_str}\n\n"
+                    f"⚠️ *LIMITATIONS*\n"
+                    f"{weaknesses_str}\n\n"
+                )
+
+                alt_lines = []
+                for idx, alt in enumerate(alternatives, 2):
+                    alt_lines.append(
+                        f"{idx}. {alt.item.title} — {alt.opportunity_score.final_score}/100 ({alt.opportunity_score.category.value})"
                     )
 
-                    quality_block = (
-                        f"🎯 *OPPORTUNITY SCORE*: {opp.final_score}/100 ({opp.category.value})\n\n"
-                        f"📊 *SCORE BREAKDOWN*\n"
-                        f"Content Potential: {int(bd.content_score)}/100\n"
-                        f"Short-form Potential: {int(bd.short_form_score)}/100\n"
-                        f"Source Quality: {int(bd.source_score)}/100\n"
-                        f"Historical Evidence: {int(bd.historical_score)}/100\n\n"
-                        f"💪 *STRONG SIGNALS*\n"
-                        f"{strengths_str}\n\n"
-                        f"⚠️ *LIMITATIONS*\n"
-                        f"{weaknesses_str}\n\n"
-                    )
+                alt_block = (
+                    "🥈 *TOP ALTERNATIVES*\n" + "\n".join(alt_lines) + "\n\n"
+                    if alt_lines
+                    else ""
+                )
 
                 message = (
                     f"🎬 *CINEOPS CONTENT OPPORTUNITY*\n\n"
+                    f"*SELECTED FROM {len(valid_candidates)} CANDIDATES*\n\n"
                     f"🎥 *MOVIE / SERIES / ANIME*\n"
                     f"{selected_item.title} ({selected_item.media_type})\n\n"
+                    f"{threshold_warning}"
                     f"{quality_block}"
+                    f"{alt_block}"
                     f"🎯 *TARGET AUDIENCE*\n"
                     f"{final_recommendation.target_audience}\n\n"
                     f"🪝 *HOOK*\n"
@@ -253,7 +356,6 @@ class WorkflowCoordinator:
                 message = (
                     f"🎬 *New Recommendation Ready!*\n\n"
                     f"**{selected_item.title}** ({selected_item.media_type})\n"
-                    f"Viral Score: {viral_score_result.score}/100\n"
                     f"AI Confidence: {final_recommendation.confidence_score}/100\n\n"
                     f"Check the output directory for details!"
                 )
