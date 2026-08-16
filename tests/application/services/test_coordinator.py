@@ -3,8 +3,9 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 
 from src.application.services.coordinator import WorkflowCoordinator
+from src.domain.models.ai_response import OnScreenText
 from src.domain.models.media_item import MediaItem
-from src.domain.models.recommendation import Recommendation
+from src.domain.models.recommendation import ContentStrategy, Recommendation
 from src.domain.models.scoring import ViralScore, ViralScoreFactors
 
 
@@ -58,6 +59,17 @@ async def test_workflow_coordinator_success() -> None:
         )
     ]
 
+    strategy = ContentStrategy(
+        video_hook="Unforgettable moment",
+        on_screen_text=OnScreenText(
+            opening="Opening text", middle="Middle text", ending="Ending text"
+        ),
+        editing_instructions="Cut fast on beats.",
+        caption="Must watch cinema!",
+        hashtags=["#movie", "#cinema", "#film", "#scene", "#viral"],
+        first_comment="What did you think?",
+    )
+
     rec_mock = AsyncMock()
     rec_mock.generate_recommendation.return_value = Recommendation(
         id="rec_1",
@@ -73,6 +85,7 @@ async def test_workflow_coordinator_success() -> None:
         ],
         target_audience="General",
         reasoning="Reason",
+        content_strategy=strategy,
     )
 
     scoring_mock = Mock()
@@ -115,6 +128,13 @@ async def test_workflow_coordinator_success() -> None:
     assert history_mock.save.called
     assert export_mock.export_recommendation.called
     assert notification_mock.send_message.called
+
+    sent_msg = notification_mock.send_message.call_args[0][0]
+    assert "CINEOPS CONTENT OPPORTUNITY" in sent_msg
+    assert "Unforgettable moment" in sent_msg
+    assert "Opening text" in sent_msg
+    assert "Must watch cinema!" in sent_msg
+    assert "#movie #cinema #film #scene #viral" in sent_msg
 
 
 @pytest.mark.asyncio

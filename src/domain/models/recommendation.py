@@ -3,7 +3,23 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.domain.models.ai_response import OnScreenText
 from src.domain.models.media_item import MediaItem
+
+
+class ContentStrategy(BaseModel):
+    """
+    Short-form video content strategy details for Reel/Short creation.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    video_hook: str
+    on_screen_text: OnScreenText
+    editing_instructions: str
+    caption: str
+    hashtags: list[str]
+    first_comment: str
 
 
 class Recommendation(BaseModel):
@@ -16,6 +32,7 @@ class Recommendation(BaseModel):
     confidence_score: float = 0.0
     viral_score: float = 0.0
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    content_strategy: ContentStrategy | None = None
 
 
 import uuid

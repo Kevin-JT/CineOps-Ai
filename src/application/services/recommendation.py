@@ -10,7 +10,7 @@ from src.core.exceptions import CineOpsError
 from src.domain.interfaces import AIProvider
 from src.domain.models.ai_response import AIRecommendationResponse
 from src.domain.models.media_item import MediaItem
-from src.domain.models.recommendation import Recommendation
+from src.domain.models.recommendation import ContentStrategy, Recommendation
 
 logger = logging.getLogger(__name__)
 
@@ -147,10 +147,20 @@ class RecommendationService:
             f"with confidence score {parsed_data.confidence_score}."
         )
 
+        strategy = ContentStrategy(
+            video_hook=parsed_data.video_hook,
+            on_screen_text=parsed_data.on_screen_text,
+            editing_instructions=parsed_data.editing_instructions,
+            caption=parsed_data.caption,
+            hashtags=parsed_data.hashtags,
+            first_comment=parsed_data.first_comment,
+        )
+
         return Recommendation(
             id=f"rec_{selected_item.id}",
             items=[selected_item],
             target_audience=parsed_data.target_audience,
             reasoning=full_reasoning,
             confidence_score=parsed_data.confidence_score,
+            content_strategy=strategy,
         )

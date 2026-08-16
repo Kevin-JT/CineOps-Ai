@@ -109,13 +109,43 @@ class WorkflowCoordinator:
             await self.export_provider.export_recommendation(final_recommendation)
 
             # 9. Notify
-            message = (
-                f"🎬 *New Recommendation Ready!*\n\n"
-                f"**{selected_item.title}** ({selected_item.media_type})\n"
-                f"Viral Score: {viral_score_result.score}/100\n"
-                f"AI Confidence: {final_recommendation.confidence_score}/100\n\n"
-                f"Check the output directory for details!"
-            )
+            strategy = final_recommendation.content_strategy
+            if strategy:
+                message = (
+                    f"🎬 *CINEOPS CONTENT OPPORTUNITY*\n\n"
+                    f"🎥 *MOVIE / SERIES / ANIME*\n"
+                    f"{selected_item.title} ({selected_item.media_type})\n\n"
+                    f"🔥 *VIRAL OPPORTUNITY*\n"
+                    f"{int(viral_score_result.score)}/100\n\n"
+                    f"🎯 *TARGET AUDIENCE*\n"
+                    f"{final_recommendation.target_audience}\n\n"
+                    f"🪝 *HOOK*\n"
+                    f'"{strategy.video_hook}"\n\n'
+                    f"📝 *ON-SCREEN TEXT*\n"
+                    f"Opening: {strategy.on_screen_text.opening}\n"
+                    f"Middle: {strategy.on_screen_text.middle}\n"
+                    f"Ending: {strategy.on_screen_text.ending}\n\n"
+                    f"✂️ *EDITING PLAN*\n"
+                    f"{strategy.editing_instructions}\n\n"
+                    f"📝 *CAPTION*\n"
+                    f"{strategy.caption}\n\n"
+                    f"#️⃣ *HASHTAGS*\n"
+                    f"{' '.join(strategy.hashtags)}\n\n"
+                    f"💬 *FIRST COMMENT*\n"
+                    f"{strategy.first_comment}\n\n"
+                    f"🧠 *WHY THIS WORKS*\n"
+                    f"{final_recommendation.reasoning}\n\n"
+                    f"⚠️ *SOURCE / CLIP*\n"
+                    f"Not available yet — YouTube discovery will be implemented in Phase 2."
+                )
+            else:
+                message = (
+                    f"🎬 *New Recommendation Ready!*\n\n"
+                    f"**{selected_item.title}** ({selected_item.media_type})\n"
+                    f"Viral Score: {viral_score_result.score}/100\n"
+                    f"AI Confidence: {final_recommendation.confidence_score}/100\n\n"
+                    f"Check the output directory for details!"
+                )
             await self.notification_provider.send_message(message)
 
             logger.info("Pipeline completed successfully!")

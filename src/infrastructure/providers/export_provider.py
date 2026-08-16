@@ -42,8 +42,24 @@ class LocalExportProvider(ExportProvider):
             f"**Viral Score**: {recommendation.viral_score}/100\n\n"
             f"## Reasoning & Content\n\n"
             f"{recommendation.reasoning}\n\n"
-            f"## Selected Item\n\n"
         )
+
+        if recommendation.content_strategy:
+            st = recommendation.content_strategy
+            md_content += (
+                f"## Short-Form Content Strategy\n\n"
+                f"**Video Hook**: {st.video_hook}\n\n"
+                f"**On-Screen Text**:\n"
+                f"- Opening: {st.on_screen_text.opening}\n"
+                f"- Middle: {st.on_screen_text.middle}\n"
+                f"- Ending: {st.on_screen_text.ending}\n\n"
+                f"**Editing Instructions**: {st.editing_instructions}\n\n"
+                f"**Caption**: {st.caption}\n\n"
+                f"**Hashtags**: {' '.join(st.hashtags)}\n\n"
+                f"**First Comment**: {st.first_comment}\n\n"
+            )
+
+        md_content += "## Selected Item\n\n"
 
         for item in recommendation.items:
             md_content += (
