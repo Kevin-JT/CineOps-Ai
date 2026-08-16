@@ -29,10 +29,13 @@ class PromptBuilder:
     )
 
     def build_recommendation_prompt(
-        self, items: list[MediaItem], performance_summary: str | None = None
+        self,
+        items: list[MediaItem],
+        performance_summary: str | None = None,
+        strategy_context: str | None = None,
     ) -> str:
         """
-        Builds a comprehensive prompt with context, optional historical performance insights, and schema definition.
+        Builds a comprehensive prompt with context, optional historical performance insights, strategic objective, and schema definition.
         """
         context_str = self._format_items_context(items)
         schema_str = self._get_json_schema()
@@ -42,6 +45,18 @@ class PromptBuilder:
             "--- TRENDING MEDIA ITEMS ---",
             context_str,
         ]
+
+        if strategy_context:
+            prompt_parts.extend(
+                [
+                    "--- TODAY'S STRATEGIC GROWTH OBJECTIVE ---",
+                    strategy_context,
+                    (
+                        "INSTRUCTION: Align the short-form video hook, caption, and editing plan "
+                        "with today's strategic growth objective where appropriate, without forcing a poor fit."
+                    ),
+                ]
+            )
 
         if performance_summary:
             prompt_parts.extend(

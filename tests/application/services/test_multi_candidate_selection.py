@@ -78,7 +78,9 @@ async def test_multi_candidate_selection_ranking(sample_items: list[MediaItem]) 
 
     # Return different recommendations based on item
     async def mock_gen(
-        items: list[MediaItem], performance_summary: str | None = None
+        items: list[MediaItem],
+        performance_summary: str | None = None,
+        strategy_context: str | None = None,
     ) -> Recommendation:
         item_id = items[0].id
         conf = 95.0 if item_id == "1" else 80.0
@@ -202,7 +204,9 @@ async def test_failure_isolation(sample_items: list[MediaItem]) -> None:
 
     # Item 1 fails, Items 2 and 3 succeed
     async def mock_gen(
-        items: list[MediaItem], performance_summary: str | None = None
+        items: list[MediaItem],
+        performance_summary: str | None = None,
+        strategy_context: str | None = None,
     ) -> Recommendation:
         item_id = items[0].id
         if item_id == "1":

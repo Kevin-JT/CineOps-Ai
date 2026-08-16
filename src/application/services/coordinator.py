@@ -19,6 +19,7 @@ from src.domain.models.quality import (
     OpportunityScoreBreakdown,
 )
 from src.domain.models.scoring import ViralScoreFactors
+from src.domain.models.strategy import DailyStrategicObjective, StrategyFitResult
 from src.domain.services.clip_intelligence import ClipIntelligenceService
 from src.domain.services.deduplication import DeduplicationService
 from src.domain.services.filtering import MediaFilterService
@@ -29,6 +30,10 @@ from src.domain.services.performance_analyzer import (
 from src.domain.services.quality_engine import RecommendationQualityEngine
 from src.domain.services.ranking import RankingService
 from src.domain.services.scoring import ViralScoringService
+from src.domain.services.strategy_engine import (
+    AccountProfileAnalyzer,
+    GrowthStrategyEngine,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +41,7 @@ logger = logging.getLogger(__name__)
 class WorkflowCoordinator:
     """
     Orchestrates the entire recommendation lifecycle, coordinating Domain and Application services.
-    Supports multi-candidate parallel evaluation, clip intelligence discovery, deterministic selection, and failure isolation.
+    Supports multi-candidate parallel evaluation, clip intelligence discovery, 30-day adaptive growth strategy, deterministic selection, and failure isolation.
     """
 
     def __init__(
@@ -54,6 +59,8 @@ class WorkflowCoordinator:
         performance_analyzer: PerformanceAnalyzer | None = None,
         quality_engine: RecommendationQualityEngine | None = None,
         clip_intelligence_service: ClipIntelligenceService | None = None,
+        strategy_engine: GrowthStrategyEngine | None = None,
+        profile_analyzer: AccountProfileAnalyzer | None = None,
         settings: Settings | None = None,
     ) -> None:
         self.trending_service = trending_service
@@ -69,6 +76,8 @@ class WorkflowCoordinator:
         self.performance_analyzer = performance_analyzer
         self.quality_engine = quality_engine
         self.clip_intelligence_service = clip_intelligence_service
+        self.strategy_engine = strategy_engine or GrowthStrategyEngine()
+        self.profile_analyzer = profile_analyzer or AccountProfileAnalyzer()
         self.settings = settings or get_settings()
 
     async def _evaluate_single_candidate(
@@ -76,15 +85,19 @@ class WorkflowCoordinator:
         candidate_item: MediaItem,
         performance_summary: str | None,
         insight_result: PerformanceInsightResult | None,
+        strategy_context: str | None = None,
+        today_objective: DailyStrategicObjective | None = None,
     ) -> EvaluatedCandidate | None:
         """
-        Evaluates a single candidate item through AI recommendation, YouTube discovery, and Quality Engine scoring.
+        Evaluates a single candidate item through AI recommendation, YouTube discovery, Quality Engine scoring, and strategy fit evaluation.
         Failures are trapped so one candidate failure does not break the entire pipeline.
         """
         try:
             # 1. AI Recommendation Generation
             rec = await self.recommendation_service.generate_recommendation(
-                [candidate_item], performance_summary=performance_summary
+                [candidate_item],
+                performance_summary=performance_summary,
+                strategy_context=strategy_context,
             )
 
             # 2. Viral Score calculation
@@ -152,10 +165,27 @@ class WorkflowCoordinator:
                 )
 
             rec = rec.model_copy(update={"opportunity_score": opp_score})
+
+            # 4b. 30-Day Strategy Fit Evaluation
+            strategy_fit: StrategyFitResult | None = None
+            if self.strategy_engine and today_objective:
+                try:
+                    strategy_fit = self.strategy_engine.evaluate_strategy_fit(
+                        candidate=EvaluatedCandidate(
+                            item=candidate_item,
+                            recommendation=rec,
+                            opportunity_score=opp_score,
+                        ),
+                        daily_objective=today_objective,
+                    )
+                except Exception as e:  # noqa: BLE001
+                    logger.warning(f"Strategy fit evaluation failed gracefully: {e}")
+
             return EvaluatedCandidate(
                 item=candidate_item,
                 recommendation=rec,
                 opportunity_score=opp_score,
+                strategy_fit=strategy_fit,
             )
         except Exception:
             logger.exception(
@@ -197,31 +227,53 @@ class WorkflowCoordinator:
             ranked_items = self.ranking_service.rank_by_popularity(filtered_items)
             candidate_pool = ranked_items[: self.settings.candidate_count]
 
-            # 4b. Performance Analysis (Optional learning loop)
+            # 4b. Performance Analysis & 30-Day Growth Strategy
             performance_summary = None
             learning_insight = None
             insight_result = None
-            if self.performance_analyzer:
-                try:
-                    perf_records = await self.history_repo.get_all_performance()
+            strategy_context_str = None
+            today_objective: DailyStrategicObjective | None = None
+
+            try:
+                perf_records = await self.history_repo.get_all_performance()
+                if self.performance_analyzer:
                     insight_result = self.performance_analyzer.analyze_performance(
                         perf_records
                     )
                     if insight_result.has_enough_data:
                         performance_summary = insight_result.formatted_summary
                         learning_insight = insight_result.short_insight
-                except Exception as e:  # noqa: BLE001
-                    logger.warning(f"Performance analysis failed gracefully: {e}")
+
+                # Generate 30-Day Strategy & Today's Objective
+                profile = self.profile_analyzer.analyze_profile(perf_records)
+                growth_strat = self.strategy_engine.generate_30_day_strategy(profile)
+                today_day = (
+                    len(perf_records) % self.settings.strategy_duration_days
+                ) + 1
+                today_objective = growth_strat.get_day_objective(today_day)
+                strategy_context_str = (
+                    f"Day {today_objective.day_number}/{self.settings.strategy_duration_days} "
+                    f"({'Exploration' if today_objective.is_exploration else 'Exploitation'}). "
+                    f"Target Category: {today_objective.preferred_category}. "
+                    f"Preferred Hook: {today_objective.preferred_hook_style}. "
+                    f"Target Platform: {today_objective.target_platform}."
+                )
+            except Exception as e:  # noqa: BLE001
+                logger.warning(
+                    f"Performance & strategy analysis failed gracefully: {e}"
+                )
 
             # 5. Multi-Candidate Parallel Evaluation
             logger.info(
-                f"Evaluating top {len(candidate_pool)} candidates concurrently..."
+                f"Evaluating top {len(candidate_pool)} candidates concurrently with strategic context..."
             )
             eval_tasks = [
                 self._evaluate_single_candidate(
                     candidate_item=item,
                     performance_summary=performance_summary,
                     insight_result=insight_result,
+                    strategy_context=strategy_context_str,
+                    today_objective=today_objective,
                 )
                 for item in candidate_pool
             ]
@@ -236,16 +288,21 @@ class WorkflowCoordinator:
                 return
 
             # 6. Deterministic Selection & Tie-Breaking
-            valid_candidates.sort(
-                key=lambda c: (
+            def selection_key(
+                c: EvaluatedCandidate,
+            ) -> tuple[float, float, float, float, float]:
+                fit_s = c.strategy_fit.fit_score if c.strategy_fit else 50.0
+                # 80% Opportunity Score (quality authoritative) + 20% Strategy Fit Score
+                combined = (c.opportunity_score.final_score * 0.80) + (fit_s * 0.20)
+                return (
+                    combined,
                     c.opportunity_score.final_score,
                     c.opportunity_score.breakdown.short_form_score,
                     c.opportunity_score.breakdown.source_score,
-                    c.opportunity_score.breakdown.content_score,
                     c.item.popularity,
-                ),
-                reverse=True,
-            )
+                )
+
+            valid_candidates.sort(key=selection_key, reverse=True)
 
             winner = valid_candidates[0]
             alternatives = valid_candidates[1:4]  # Top 3 alternatives
@@ -363,9 +420,27 @@ class WorkflowCoordinator:
                     else ""
                 )
 
+                strat_block = ""
+                if today_objective:
+                    strat_block = (
+                        f"🧠 *30-DAY GROWTH STRATEGY*\n"
+                        f"Day {today_objective.day_number} / {self.settings.strategy_duration_days} "
+                        f"({'Exploration' if today_objective.is_exploration else 'Exploitation'})\n\n"
+                        f"🎯 *TODAY'S STRATEGY*\n"
+                        f"Focus: {today_objective.preferred_category}\n"
+                        f"Hook Style: {today_objective.preferred_hook_style}\n"
+                        f"Platform: {today_objective.target_platform}\n\n"
+                    )
+                    if winner.strategy_fit:
+                        strat_block += (
+                            f"📊 *STRATEGY FIT*: {int(winner.strategy_fit.fit_score)}/100\n"
+                            f"💡 *WHY*: {winner.strategy_fit.fit_reason}\n\n"
+                        )
+
                 message = (
                     f"🎬 *CINEOPS CONTENT OPPORTUNITY*\n\n"
                     f"*SELECTED FROM {len(valid_candidates)} CANDIDATES*\n\n"
+                    f"{strat_block}"
                     f"🎥 *MOVIE / SERIES / ANIME*\n"
                     f"{selected_item.title} ({selected_item.media_type})\n\n"
                     f"{threshold_warning}"

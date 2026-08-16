@@ -19,6 +19,10 @@ from src.domain.services.performance_analyzer import PerformanceAnalyzer
 from src.domain.services.quality_engine import RecommendationQualityEngine
 from src.domain.services.ranking import RankingService
 from src.domain.services.scoring import ViralScoringService
+from src.domain.services.strategy_engine import (
+    AccountProfileAnalyzer,
+    GrowthStrategyEngine,
+)
 from src.infrastructure.providers.export_provider import LocalExportProvider
 from src.infrastructure.providers.gemini_provider import GeminiProvider
 from src.infrastructure.providers.jikan_provider import JikanProvider
@@ -129,6 +133,12 @@ class Container:
         self.clip_intelligence_service = ClipIntelligenceService(
             transcript_provider=self.transcript_provider
         )
+        self.profile_analyzer = AccountProfileAnalyzer()
+        self.strategy_engine = GrowthStrategyEngine(
+            exploitation_ratio=self.settings.exploitation_ratio,
+            exploration_ratio=self.settings.exploration_ratio,
+            total_days=self.settings.strategy_duration_days,
+        )
 
         # Application Services
         self.trending_service = TrendingService(
@@ -192,6 +202,9 @@ class Container:
             performance_analyzer=self.performance_analyzer,
             quality_engine=self.quality_engine,
             clip_intelligence_service=self.clip_intelligence_service,
+            strategy_engine=self.strategy_engine,
+            profile_analyzer=self.profile_analyzer,
+            settings=self.settings,
         )
 
     @property

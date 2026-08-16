@@ -38,9 +38,12 @@ class Settings(BaseSettings):
     cache_path: str = "data/cache.json"
     cache_ttl_seconds: int = 3600  # Default to 1 hour
 
-    # Multi-Candidate Strategy
+    # Multi-Candidate & 30-Day Growth Strategy
     candidate_count: int = 5
     min_opportunity_score: int = 60
+    strategy_duration_days: int = 30
+    exploitation_ratio: float = 0.70
+    exploration_ratio: float = 0.30
 
     # Scheduler
     scheduler_enabled: bool = False

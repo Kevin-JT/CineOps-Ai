@@ -3,6 +3,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from src.domain.models.media_item import MediaItem
 from src.domain.models.quality import OpportunityScore
 from src.domain.models.recommendation import Recommendation
+from src.domain.models.strategy import StrategyFitResult
 
 
 class EvaluatedCandidate(BaseModel):
@@ -18,4 +19,7 @@ class EvaluatedCandidate(BaseModel):
     )
     opportunity_score: OpportunityScore = Field(
         ..., description="Evaluated quality and opportunity score."
+    )
+    strategy_fit: StrategyFitResult | None = Field(
+        default=None, description="Evaluated 30-day strategy fit result."
     )
