@@ -57,27 +57,56 @@ class TelegramProvider(NotificationProvider):
 
         url = f"{self.BASE_URL}{self._bot_token}/sendMessage"
 
-        payload = {
-            "chat_id": self._chat_id,
-            "text": message,
-            "parse_mode": "Markdown",
-        }
+        # Split message if it exceeds Telegram's 4096 character limit
+        max_chunk_size = 4000
+        chunks = [
+            message[i : i + max_chunk_size]
+            for i in range(0, len(message), max_chunk_size)
+        ]
 
-        async def _make_request() -> httpx.Response:
-            return await self._client.post(url, json=payload, timeout=self._timeout)
+        for chunk in chunks:
+            payload: dict[str, Any] = {
+                "chat_id": self._chat_id,
+                "text": chunk,
+                "parse_mode": "Markdown",
+            }
 
-        if self._circuit_breaker:
-            response = await self._circuit_breaker.call(_make_request)
-        else:
-            response = await _make_request()
+            async def _make_request(p: dict[str, Any]) -> httpx.Response:
+                return await self._client.post(url, json=p, timeout=self._timeout)
 
-        response.raise_for_status()
+            try:
+                if self._circuit_breaker:
+                    response = await self._circuit_breaker.call(
+                        lambda p=payload: _make_request(p)
+                    )
+                else:
+                    response = await _make_request(payload)
+                response.raise_for_status()
+            except httpx.HTTPStatusError as e:
+                # If Markdown parsing failed (400 Bad Request), fallback to plain text!
+                if e.response.status_code == 400:
+                    logger.warning(
+                        "Telegram Markdown parsing failed. Retrying in plain text..."
+                    )
+                    payload_plain = {
+                        "chat_id": self._chat_id,
+                        "text": chunk,
+                    }
+                    if self._circuit_breaker:
+                        response = await self._circuit_breaker.call(
+                            lambda p=payload_plain: _make_request(p)
+                        )
+                    else:
+                        response = await _make_request(payload_plain)
+                    response.raise_for_status()
+                else:
+                    raise
 
-        data = response.json()
-        if not data.get("ok"):
-            error_msg = data.get("description", "Unknown Telegram Error")
-            logger.error(f"Telegram API returned an error: {error_msg}")
-            raise ProviderError(f"Telegram API error: {error_msg}")
+            data = response.json()
+            if not data.get("ok"):
+                error_msg = data.get("description", "Unknown Telegram Error")
+                logger.error(f"Telegram API returned an error: {error_msg}")
+                raise ProviderError(f"Telegram API error: {error_msg}")
 
         logger.info("Successfully sent message to Telegram.")
         return True

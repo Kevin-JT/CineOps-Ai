@@ -1,21 +1,59 @@
 {
-  "id": "rec_38524",
+  "id": "rec_58514",
   "items": [
     {
-      "id": "38524",
-      "title": "Attack on Titan Season 3 Part 2",
-      "overview": "Seeking to restore humanity's diminishing hope, the Survey Corps embark on a mission to retake Wall Maria, where the battle against the merciless \"Titans\" takes the stage once again.\n\nReturning to the tattered Shiganshina District that was once his home, Eren Yeager and the Corps find the town oddly unoccupied by Titans. Even after the outer gate is plugged, they strangely encounter no opposition. The mission progresses smoothly until Armin Arlert, highly suspicious of the enemy's absence, discovers distressing signs of a potential scheme against them. \n\nShingeki no Kyojin Season 3 Part 2 follows Eren as he vows to take back everything that was once his. Alongside him, the Survey Corps strive\u2014through countless sacrifices\u2014to carve a path towards victory and uncover the secrets locked away in the Yeager family's basement.\n\n[Written by MAL Rewrite]",
+      "id": "58514",
+      "title": "The Apothecary Diaries Season 2",
+      "overview": "Using her wit and vast knowledge of medicines and poisons alike, Maomao played a pivotal role in solving a series of mysteries and conspiracies that plagued the imperial court. Having recently come to terms with the secrets of her parents, she returns to fulfill her normal duties on behalf of the emperor's highest-ranking consorts. Maomao also works alongside the eunuch Jinshi to better the consorts' many ladies-in-waiting, including helping them learn to read.\n\nHowever, with the arrival of a merchant caravan comes a new wave of intrigue. A pattern of strange coincidences involving the visitors and their wares unsettles Maomao, driving her to investigate the puzzling circumstances behind the convoy. As dangers from both outside and within threaten the balance between the imperial concubines, Maomao continues to utilize her cunning and medical expertise to keep the women safe from harm.\n\n[Written by MAL Rewrite]",
       "media_type": "anime",
-      "release_date": "2019-04-29",
-      "rating": 9.05,
-      "popularity": 2619798.0,
+      "release_date": "2025-01-10",
+      "rating": 8.91,
+      "popularity": 529445.0,
       "genres": [],
-      "created_at": "2026-08-05T15:29:59.912420Z"
+      "created_at": "2026-08-16T16:03:24.826195Z"
     }
   ],
-  "target_audience": "Anime fans, action enthusiasts, and pop culture communities on social media.",
-  "reasoning": "**Why Now**: Attack on Titan remains a colossal cultural touchstone, and its high-stakes narrative arcs like Season 3 Part 2 consistently drive massive engagement, debate, and nostalgia across platforms.\n\n**Audience Appeal**: The blend of breathtaking animation, high emotional stakes, and mind-blowing plot reveals guarantees intense audience participation, shares, and comment threads.\n\n**Caption**: The truth of the world is finally waiting in the basement. \ud83d\udddd\ufe0f\ud83d\udd25 Attack on Titan Season 3 Part 2 is an absolute masterclass in storytelling and hype. If you know, you know.\n**Hashtags**: #AttackOnTitan #AOT #Anime #ErenYeager #CineOps #AnimeViral",
-  "confidence_score": 96.5,
-  "viral_score": 88.85,
-  "generated_at": "2026-08-05T15:30:05.460777Z"
+  "target_audience": "Anime fans, mystery enthusiasts, and followers of smart psychological thriller plots.",
+  "reasoning": "**Why Now**: The Apothecary Diaries Season 2 is dominating engagement metrics with an exceptional 8.91 rating and massive popularity, positioning it as the premier prestige anime currently capturing public curiosity.\n\n**Audience Appeal**: Audiences love sharp, intelligent protagonists like Maomao who outwit complex conspiracies. Framing the new season around an unsettling merchant caravan mystery taps directly into thriller psychology and keeps viewers hooked until the end.\n\n**Caption**: Maomao is back in the inner court, and a new wave of mysterious occurrences tied to the merchant caravan is about to test her wit like never before. If you love clever deduction and high-stakes imperial intrigue, Season 2 is an absolute must-watch.\n**Hashtags**: #theapothecarydiaries #maomao #animethriller #animerecs #animeedit",
+  "confidence_score": 95.5,
+  "viral_score": 88.57,
+  "generated_at": "2026-08-16T16:03:28.234117Z",
+  "content_strategy": {
+    "video_hook": "What is the dark secret hidden inside the new merchant caravan?",
+    "on_screen_text": {
+      "opening": "The smartest thriller anime is back...",
+      "middle": "A strange merchant caravan arrives, bringing hidden poisons and imperial court conspiracies.",
+      "ending": "Are you watching Season 2?"
+    },
+    "editing_instructions": "Start with a fast-paced montage of intense facial expressions and suspicious trade items. Use quick jump cuts synced to a rising thriller beat. Keep on-screen text centered in a bold, readable font with high contrast. End on a lingering, mysterious shot of Maomao investigating to prompt rewatches.",
+    "caption": "Maomao is back in the inner court, and a new wave of mysterious occurrences tied to the merchant caravan is about to test her wit like never before. If you love clever deduction and high-stakes imperial intrigue, Season 2 is an absolute must-watch.",
+    "hashtags": [
+      "#theapothecarydiaries",
+      "#maomao",
+      "#animethriller",
+      "#animerecs",
+      "#animeedit"
+    ],
+    "first_comment": "Do you think the merchant caravan plotline will top the mysteries from the first season?"
+  },
+  "youtube_source": null,
+  "opportunity_score": {
+    "final_score": 86,
+    "category": "STRONG",
+    "breakdown": {
+      "content_score": 93.5,
+      "short_form_score": 98.9,
+      "source_score": 45.0,
+      "historical_score": 96.2
+    },
+    "strengths": [
+      "High media rating (8.91/10) and audience popularity",
+      "Strong video hook and complete editing strategy"
+    ],
+    "weaknesses": [
+      "Direct YouTube clip candidate not available",
+      "Limited account history (new account neutral baseline)"
+    ]
+  },
+  "clip_intelligence": null
 }

@@ -474,7 +474,10 @@ class WorkflowCoordinator:
                     f"AI Confidence: {final_recommendation.confidence_score}/100\n\n"
                     f"Check the output directory for details!"
                 )
-            await self.notification_provider.send_message(message)
+            try:
+                await self.notification_provider.send_message(message)
+            except Exception as e:  # noqa: BLE001
+                logger.error(f"Telegram notification delivery failed: {e}")
 
             logger.info("Pipeline completed successfully!")
 
