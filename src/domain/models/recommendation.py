@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.domain.models.ai_response import OnScreenText
+from src.domain.models.clip import ClipIntelligenceResult
 from src.domain.models.media_item import MediaItem
 from src.domain.models.quality import OpportunityScore
 from src.domain.models.youtube import YouTubeSource
@@ -37,6 +38,7 @@ class Recommendation(BaseModel):
     content_strategy: ContentStrategy | None = None
     youtube_source: YouTubeSource | None = None
     opportunity_score: OpportunityScore | None = None
+    clip_intelligence: ClipIntelligenceResult | None = None
 
 
 import uuid

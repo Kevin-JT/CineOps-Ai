@@ -71,6 +71,24 @@ class LocalExportProvider(ExportProvider):
                 f"**First Comment**: {st.first_comment}\n\n"
             )
 
+        if recommendation.clip_intelligence:
+            ci = recommendation.clip_intelligence
+            bc = ci.best_clip
+            ts_str = (
+                f"{bc.start_timestamp} → {bc.end_timestamp} ({bc.duration_seconds}s)"
+                if (bc.timestamp_verified and bc.start_timestamp and bc.end_timestamp)
+                else "Not verified"
+            )
+            md_content += (
+                f"## Clip Intelligence\n\n"
+                f"- **Scene**: {bc.scene_description}\n"
+                f"- **Timestamps**: {ts_str}\n"
+                f"- **Clip Score**: {bc.clip_score}/100\n"
+                f"- **Confidence**: {bc.confidence_score}/100\n"
+                f"- **Verification**: {bc.verification_status.value}\n"
+                f"- **Match Reason**: {bc.match_reason}\n\n"
+            )
+
         if recommendation.youtube_source:
             yt = recommendation.youtube_source
             md_content += (
@@ -78,8 +96,7 @@ class LocalExportProvider(ExportProvider):
                 f"- **Title**: {yt.title}\n"
                 f"- **Channel**: {yt.channel_name}\n"
                 f"- **URL**: [{yt.url}]({yt.url})\n"
-                f"- **Relevance Score**: {yt.relevance_score}/100\n"
-                f"- **Timestamp**: Not verified\n\n"
+                f"- **Relevance Score**: {yt.relevance_score}/100\n\n"
             )
 
         md_content += "## Selected Item\n\n"

@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from pydantic import BaseModel
+
 from src.domain.models.media_item import MediaItem
 from src.domain.models.recommendation import Recommendation
 
@@ -75,4 +77,16 @@ class SourceProvider(ABC):
         media_type: str,
         query_keywords: list[str] | None = None,
     ) -> "YouTubeSource | None":
+        pass
+
+
+class TranscriptEntry(BaseModel):
+    text: str
+    start: float
+    duration: float
+
+
+class TranscriptProvider(ABC):
+    @abstractmethod
+    async def get_transcript(self, video_id: str) -> list[TranscriptEntry] | None:
         pass

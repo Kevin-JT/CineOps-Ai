@@ -12,6 +12,7 @@ from src.application.services.recommendation import RecommendationService
 from src.application.services.trending import TrendingService
 from src.config.settings import Settings, get_settings
 from src.core.circuit_breaker import CircuitBreaker
+from src.domain.services.clip_intelligence import ClipIntelligenceService
 from src.domain.services.deduplication import DeduplicationService
 from src.domain.services.filtering import MediaFilterService
 from src.domain.services.performance_analyzer import PerformanceAnalyzer
@@ -23,6 +24,7 @@ from src.infrastructure.providers.gemini_provider import GeminiProvider
 from src.infrastructure.providers.jikan_provider import JikanProvider
 from src.infrastructure.providers.telegram_provider import TelegramProvider
 from src.infrastructure.providers.tmdb_provider import TMDbProvider
+from src.infrastructure.providers.transcript_provider import YouTubeTranscriptProvider
 from src.infrastructure.providers.youtube_provider import YouTubeProvider
 from src.infrastructure.repositories.json_repo import (
     JsonBlacklistRepository,
@@ -123,6 +125,10 @@ class Container:
         self.scoring_service = ViralScoringService()
         self.performance_analyzer = PerformanceAnalyzer()
         self.quality_engine = RecommendationQualityEngine()
+        self.transcript_provider = YouTubeTranscriptProvider(client=self.http_client)
+        self.clip_intelligence_service = ClipIntelligenceService(
+            transcript_provider=self.transcript_provider
+        )
 
         # Application Services
         self.trending_service = TrendingService(
@@ -185,6 +191,7 @@ class Container:
             source_provider=self.youtube_provider,
             performance_analyzer=self.performance_analyzer,
             quality_engine=self.quality_engine,
+            clip_intelligence_service=self.clip_intelligence_service,
         )
 
     @property

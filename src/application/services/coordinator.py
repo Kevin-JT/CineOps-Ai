@@ -19,6 +19,7 @@ from src.domain.models.quality import (
     OpportunityScoreBreakdown,
 )
 from src.domain.models.scoring import ViralScoreFactors
+from src.domain.services.clip_intelligence import ClipIntelligenceService
 from src.domain.services.deduplication import DeduplicationService
 from src.domain.services.filtering import MediaFilterService
 from src.domain.services.performance_analyzer import (
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 class WorkflowCoordinator:
     """
     Orchestrates the entire recommendation lifecycle, coordinating Domain and Application services.
-    Supports multi-candidate parallel evaluation, deterministic selection, and failure isolation.
+    Supports multi-candidate parallel evaluation, clip intelligence discovery, deterministic selection, and failure isolation.
     """
 
     def __init__(
@@ -52,6 +53,7 @@ class WorkflowCoordinator:
         source_provider: SourceProvider | None = None,
         performance_analyzer: PerformanceAnalyzer | None = None,
         quality_engine: RecommendationQualityEngine | None = None,
+        clip_intelligence_service: ClipIntelligenceService | None = None,
         settings: Settings | None = None,
     ) -> None:
         self.trending_service = trending_service
@@ -66,6 +68,7 @@ class WorkflowCoordinator:
         self.source_provider = source_provider
         self.performance_analyzer = performance_analyzer
         self.quality_engine = quality_engine
+        self.clip_intelligence_service = clip_intelligence_service
         self.settings = settings or get_settings()
 
     async def _evaluate_single_candidate(
@@ -112,6 +115,19 @@ class WorkflowCoordinator:
                 except Exception as e:  # noqa: BLE001
                     logger.warning(
                         f"YouTube discovery failed for '{candidate_item.title}': {e}"
+                    )
+
+            # 3b. Clip Intelligence Discovery (isolated)
+            if self.clip_intelligence_service and rec.youtube_source:
+                try:
+                    clip_res = await self.clip_intelligence_service.analyze_clip(
+                        youtube_source=rec.youtube_source,
+                        content_strategy=rec.content_strategy,
+                    )
+                    rec = rec.model_copy(update={"clip_intelligence": clip_res})
+                except Exception as e:  # noqa: BLE001
+                    logger.warning(
+                        f"Clip intelligence analysis failed for '{candidate_item.title}': {e}"
                     )
 
             # 4. Recommendation Quality Engine Evaluation (isolated)
@@ -263,16 +279,40 @@ class WorkflowCoordinator:
             if strategy:
                 if final_recommendation.youtube_source:
                     yt = final_recommendation.youtube_source
-                    source_block = (
-                        f"🎥 *YOUTUBE SOURCE*\n"
-                        f"Title: {yt.title}\n"
-                        f"Channel: {yt.channel_name}\n"
-                        f"Relevance: {int(yt.relevance_score)}/100\n\n"
-                        f"⏱ *TIMESTAMP*\n"
-                        f"Timestamp: Not verified\n\n"
-                        f"▶️ *SOURCE*\n"
-                        f"{yt.url}"
-                    )
+                    if final_recommendation.clip_intelligence:
+                        ci = final_recommendation.clip_intelligence
+                        bc = ci.best_clip
+                        ts_display = (
+                            f"{bc.start_timestamp} → {bc.end_timestamp} (Duration: {bc.duration_seconds}s)"
+                            if (
+                                bc.timestamp_verified
+                                and bc.start_timestamp
+                                and bc.end_timestamp
+                            )
+                            else "Timestamp not verified"
+                        )
+                        source_block = (
+                            f"🎥 *BEST CLIP*\n"
+                            f"{bc.scene_description}\n\n"
+                            f"⏱ *CLIP*\n"
+                            f"{ts_display}\n\n"
+                            f"🎯 *CLIP SCORE*: {int(bc.clip_score)}/100\n"
+                            f"🔎 *VERIFICATION*: {bc.verification_status.value}\n"
+                            f"💡 *WHY THIS CLIP*: {bc.match_reason}\n\n"
+                            f"▶️ *SOURCE*\n"
+                            f"{yt.url}"
+                        )
+                    else:
+                        source_block = (
+                            f"🎥 *YOUTUBE SOURCE*\n"
+                            f"Title: {yt.title}\n"
+                            f"Channel: {yt.channel_name}\n"
+                            f"Relevance: {int(yt.relevance_score)}/100\n\n"
+                            f"⏱ *TIMESTAMP*\n"
+                            f"Timestamp: Not verified\n\n"
+                            f"▶️ *SOURCE*\n"
+                            f"{yt.url}"
+                        )
                 else:
                     source_block = (
                         "⚠️ *SOURCE / CLIP*\n"
