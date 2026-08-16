@@ -289,3 +289,10 @@ def test_prompt_builder_requirements() -> None:
     assert "hashtags" in prompt
     assert "first_comment" in prompt
     assert "DO NOT INVENT TIMESTAMPS" in prompt
+    assert "HISTORICAL PERFORMANCE INSIGHTS" not in prompt
+
+    prompt_with_perf = builder.build_recommendation_prompt(
+        items, performance_summary="Average engagement: 14.5%"
+    )
+    assert "HISTORICAL PERFORMANCE INSIGHTS" in prompt_with_perf
+    assert "Average engagement: 14.5%" in prompt_with_perf

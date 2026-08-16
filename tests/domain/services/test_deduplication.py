@@ -2,6 +2,7 @@ import pytest
 
 from src.domain.interfaces import BlacklistRepository, HistoryRepository
 from src.domain.models.media_item import MediaItem
+from src.domain.models.performance import PerformanceMetrics
 from src.domain.services.deduplication import DeduplicationService
 
 
@@ -11,6 +12,12 @@ class MockHistoryRepo(HistoryRepository):
 
     async def save(self, item: MediaItem) -> bool:
         return True
+
+    async def save_performance(self, metrics: "PerformanceMetrics") -> bool:
+        return True
+
+    async def get_all_performance(self) -> list["PerformanceMetrics"]:
+        return []
 
 
 class MockBlacklistRepo(BlacklistRepository):

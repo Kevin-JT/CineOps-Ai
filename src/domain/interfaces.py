@@ -5,6 +5,7 @@ from src.domain.models.media_item import MediaItem
 from src.domain.models.recommendation import Recommendation
 
 if TYPE_CHECKING:
+    from src.domain.models.performance import PerformanceMetrics
     from src.domain.models.youtube import YouTubeSource
 
 
@@ -27,6 +28,14 @@ class HistoryRepository(ABC):
 
     @abstractmethod
     async def save(self, item: MediaItem) -> bool:
+        pass
+
+    @abstractmethod
+    async def save_performance(self, metrics: "PerformanceMetrics") -> bool:
+        pass
+
+    @abstractmethod
+    async def get_all_performance(self) -> list["PerformanceMetrics"]:
         pass
 
 

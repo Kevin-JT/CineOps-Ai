@@ -32,10 +32,12 @@ class RecommendationService:
         self.repository = repository
         self.cache = cache
 
-    async def generate_recommendation(self, items: list[MediaItem]) -> Recommendation:
+    async def generate_recommendation(
+        self, items: list[MediaItem], performance_summary: str | None = None
+    ) -> Recommendation:
         """
-        Constructs a prompt based on the provided media items and requests an AI recommendation.
-        Checks cache first. Persists the generation log to the database on cache miss.
+        Constructs a prompt based on the provided media items and optional historical performance summary,
+        requesting an AI recommendation. Checks cache first. Persists the generation log to disk on cache miss.
         """
         import hashlib
         import time
@@ -45,7 +47,9 @@ class RecommendationService:
         if not items:
             raise ValueError("Cannot generate recommendation without media items.")
 
-        prompt = self.prompt_builder.build_recommendation_prompt(items)
+        prompt = self.prompt_builder.build_recommendation_prompt(
+            items, performance_summary=performance_summary
+        )
 
         # Check Cache
         cache_key = f"rec_prompt:{hashlib.sha256(prompt.encode('utf-8')).hexdigest()}"

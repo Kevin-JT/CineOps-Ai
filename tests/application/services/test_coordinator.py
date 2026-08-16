@@ -264,6 +264,137 @@ async def test_workflow_coordinator_with_youtube_source() -> None:
 
 
 @pytest.mark.asyncio
+async def test_workflow_coordinator_with_performance_analyzer() -> None:
+    from src.domain.models.performance import PerformanceMetrics
+    from src.domain.services.performance_analyzer import PerformanceAnalyzer
+
+    perf_analyzer = PerformanceAnalyzer(min_samples=3)
+
+    trending_mock = AsyncMock()
+    trending_mock.fetch_all_trending.return_value = [
+        MediaItem(
+            id="1",
+            title="Movie",
+            overview="",
+            media_type="movie",
+            rating=8.0,
+            popularity=50.0,
+        )
+    ]
+    dedup_mock = AsyncMock()
+    dedup_mock.filter_duplicates.return_value = [
+        MediaItem(
+            id="1",
+            title="Movie",
+            overview="",
+            media_type="movie",
+            rating=8.0,
+            popularity=50.0,
+        )
+    ]
+    filter_mock = Mock()
+    filter_mock.filter_items.return_value = [
+        MediaItem(
+            id="1",
+            title="Movie",
+            overview="",
+            media_type="movie",
+            rating=8.0,
+            popularity=50.0,
+        )
+    ]
+    ranking_mock = Mock()
+    ranking_mock.rank_by_popularity.return_value = [
+        MediaItem(
+            id="1",
+            title="Movie",
+            overview="",
+            media_type="movie",
+            rating=8.0,
+            popularity=50.0,
+        )
+    ]
+
+    strategy = ContentStrategy(
+        video_hook="Hook",
+        on_screen_text=OnScreenText(opening="O", middle="M", ending="E"),
+        editing_instructions="Edit",
+        caption="Cap",
+        hashtags=["#a", "#b", "#c", "#d", "#e"],
+        first_comment="Comm",
+    )
+
+    rec_mock = AsyncMock()
+    rec_mock.generate_recommendation.return_value = Recommendation(
+        id="rec_1",
+        items=[
+            MediaItem(
+                id="1",
+                title="Movie",
+                overview="",
+                media_type="movie",
+                rating=8.0,
+                popularity=50.0,
+            )
+        ],
+        target_audience="General",
+        reasoning="Reason",
+        content_strategy=strategy,
+    )
+
+    scoring_mock = Mock()
+    scoring_mock.calculate_score.return_value = ViralScore(
+        score=85.0,
+        factors=ViralScoreFactors(
+            popularity=50.0,
+            rating=8.0,
+            recognition=80.0,
+            visual_impact=85.0,
+            emotional_impact=70.0,
+            social_potential=90.0,
+        ),
+    )
+
+    history_mock = AsyncMock()
+    history_mock.get_all_performance.return_value = [
+        PerformanceMetrics(
+            recommendation_id="r1", platform="instagram", views=1000, likes=100
+        ),
+        PerformanceMetrics(
+            recommendation_id="r2", platform="instagram", views=2000, likes=200
+        ),
+        PerformanceMetrics(
+            recommendation_id="r3", platform="youtube", views=5000, likes=500
+        ),
+    ]
+
+    notification_mock = AsyncMock()
+
+    coordinator = WorkflowCoordinator(
+        trending_service=trending_mock,
+        deduplication_service=dedup_mock,
+        filter_service=filter_mock,
+        ranking_service=ranking_mock,
+        recommendation_service=rec_mock,
+        scoring_service=scoring_mock,
+        export_provider=AsyncMock(),
+        history_repo=history_mock,
+        notification_provider=notification_mock,
+        performance_analyzer=perf_analyzer,
+    )
+
+    await coordinator.run_pipeline()
+
+    assert rec_mock.generate_recommendation.called
+    kwargs = rec_mock.generate_recommendation.call_args[1]
+    assert kwargs.get("performance_summary") is not None
+    assert "PERFORMANCE INSIGHTS:" in kwargs.get("performance_summary")
+
+    sent_msg = notification_mock.send_message.call_args[0][0]
+    assert "LEARNING INSIGHT" in sent_msg
+
+
+@pytest.mark.asyncio
 async def test_workflow_coordinator_aborts_early() -> None:
     trending_mock = AsyncMock()
     trending_mock.fetch_all_trending.return_value = []

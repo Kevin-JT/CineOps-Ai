@@ -28,20 +28,41 @@ class PromptBuilder:
         "14. The selected_id MUST precisely match one of the items in the list.\n"
     )
 
-    def build_recommendation_prompt(self, items: list[MediaItem]) -> str:
+    def build_recommendation_prompt(
+        self, items: list[MediaItem], performance_summary: str | None = None
+    ) -> str:
         """
-        Builds a comprehensive prompt with context and schema definition.
+        Builds a comprehensive prompt with context, optional historical performance insights, and schema definition.
         """
         context_str = self._format_items_context(items)
         schema_str = self._get_json_schema()
 
-        return (
-            f"{self.SYSTEM_PROMPT}\n\n"
-            f"--- TRENDING MEDIA ITEMS ---\n"
-            f"{context_str}\n\n"
-            f"--- EXPECTED JSON SCHEMA ---\n"
-            f"{schema_str}\n"
+        prompt_parts = [
+            self.SYSTEM_PROMPT,
+            "--- TRENDING MEDIA ITEMS ---",
+            context_str,
+        ]
+
+        if performance_summary:
+            prompt_parts.extend(
+                [
+                    "--- HISTORICAL PERFORMANCE INSIGHTS ---",
+                    performance_summary,
+                    (
+                        "INSTRUCTION: Use these historical performance insights as supporting evidence "
+                        "when creating the recommendation content strategy. Do not treat them as rigid rules."
+                    ),
+                ]
+            )
+
+        prompt_parts.extend(
+            [
+                "--- EXPECTED JSON SCHEMA ---",
+                schema_str,
+            ]
         )
+
+        return "\n\n".join(prompt_parts)
 
     def _format_items_context(self, items: list[MediaItem]) -> str:
         """

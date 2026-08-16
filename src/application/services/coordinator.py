@@ -12,6 +12,7 @@ from src.domain.interfaces import (
 from src.domain.models.scoring import ViralScoreFactors
 from src.domain.services.deduplication import DeduplicationService
 from src.domain.services.filtering import MediaFilterService
+from src.domain.services.performance_analyzer import PerformanceAnalyzer
 from src.domain.services.ranking import RankingService
 from src.domain.services.scoring import ViralScoringService
 
@@ -35,6 +36,7 @@ class WorkflowCoordinator:
         history_repo: HistoryRepository,
         notification_provider: NotificationProvider,
         source_provider: SourceProvider | None = None,
+        performance_analyzer: PerformanceAnalyzer | None = None,
     ) -> None:
         self.trending_service = trending_service
         self.deduplication_service = deduplication_service
@@ -46,11 +48,12 @@ class WorkflowCoordinator:
         self.history_repo = history_repo
         self.notification_provider = notification_provider
         self.source_provider = source_provider
+        self.performance_analyzer = performance_analyzer
 
     async def run_pipeline(self) -> None:
         """
         Executes the full pipeline:
-        Fetch -> Deduplicate -> Filter -> Rank -> Recommend -> Score -> Discover Source -> Save -> Export -> Notify.
+        Fetch -> Deduplicate -> Filter -> Rank -> Performance Analysis -> Recommend -> Score -> Discover Source -> Save -> Export -> Notify.
         """
         logger.info("Starting CineOps AI recommendation pipeline...")
 
@@ -81,9 +84,24 @@ class WorkflowCoordinator:
             ranked_items = self.ranking_service.rank_by_popularity(filtered_items)
             top_items = ranked_items[:10]  # Pass top 10 to AI for context limit safety
 
+            # 4b. Performance Analysis (Optional learning loop)
+            performance_summary = None
+            learning_insight = None
+            if self.performance_analyzer:
+                try:
+                    perf_records = await self.history_repo.get_all_performance()
+                    insight_result = self.performance_analyzer.analyze_performance(
+                        perf_records
+                    )
+                    if insight_result.has_enough_data:
+                        performance_summary = insight_result.formatted_summary
+                        learning_insight = insight_result.short_insight
+                except Exception as e:  # noqa: BLE001
+                    logger.warning(f"Performance analysis failed gracefully: {e}")
+
             # 5. Generate Recommendation
             recommendation = await self.recommendation_service.generate_recommendation(
-                top_items
+                top_items, performance_summary=performance_summary
             )
 
             # 6. Calculate Viral Score
@@ -152,6 +170,12 @@ class WorkflowCoordinator:
                         "Not available — YouTube discovery skipped or no match found."
                     )
 
+                insight_block = (
+                    f"💡 *LEARNING INSIGHT*\n{learning_insight}\n\n"
+                    if learning_insight
+                    else ""
+                )
+
                 message = (
                     f"🎬 *CINEOPS CONTENT OPPORTUNITY*\n\n"
                     f"🎥 *MOVIE / SERIES / ANIME*\n"
@@ -176,6 +200,7 @@ class WorkflowCoordinator:
                     f"{strategy.first_comment}\n\n"
                     f"🧠 *WHY THIS WORKS*\n"
                     f"{final_recommendation.reasoning}\n\n"
+                    f"{insight_block}"
                     f"{source_block}"
                 )
             else:
