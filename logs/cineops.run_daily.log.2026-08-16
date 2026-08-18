@@ -1,0 +1,215 @@
+{"timestamp": "2026-08-16T14:55:49.175622+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T14:55:49.176945+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T14:55:49.178498+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T14:55:49.178834+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T14:55:49.179731+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T14:55:49.192025+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T14:55:49.193014+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T14:55:49.194070+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T14:55:49.197830+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T14:55:49.199283+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T14:57:35.770347+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T14:57:35.771138+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T14:57:35.772732+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T14:57:35.773154+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T14:57:35.774250+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T14:57:35.783049+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T14:57:35.783694+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T14:57:35.784209+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T14:57:35.786241+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T14:57:35.787250+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T14:58:12.456199+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T14:58:12.456646+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T14:58:12.457573+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T14:58:12.457819+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T14:58:12.458399+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T14:58:12.467379+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T14:58:12.467977+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T14:58:12.468217+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T14:58:12.469085+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T14:58:12.469912+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:00:24.032814+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:00:24.033737+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:00:24.035726+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:00:24.036161+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:00:24.037233+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:00:24.057621+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:00:24.058495+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:00:24.059140+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:00:24.061723+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:00:24.063000+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:09:07.941442+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:09:07.942447+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:09:07.944663+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:09:07.945229+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:09:07.946460+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:09:07.958837+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:09:07.959547+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:09:07.960336+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:09:07.962277+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:09:07.963233+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:09:53.077202+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:09:53.077957+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:09:53.079535+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:09:53.079902+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:09:53.080796+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:09:53.091196+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:09:53.091891+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:09:53.092361+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:09:53.094440+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:09:53.095447+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:17:59.526244+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:17:59.526938+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:17:59.528425+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:17:59.528927+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:17:59.530353+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:17:59.539738+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:17:59.540472+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:17:59.541009+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:17:59.543227+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:17:59.544378+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:18:35.900186+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:18:35.900735+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:18:35.901883+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:18:35.902165+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:18:35.902881+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:18:35.912689+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:18:35.913260+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:18:35.913675+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:18:35.915364+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:18:35.916247+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:21:16.854064+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:21:16.854779+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:21:16.856127+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:21:16.856473+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:21:16.857247+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:21:16.866708+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:21:16.867315+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:21:16.867762+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:21:16.869738+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:21:16.870670+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:27:30.624622+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:27:30.625765+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:27:30.628071+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:27:30.628717+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:27:30.630042+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:27:30.642853+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:27:30.643523+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:27:30.644006+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:27:30.646045+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:27:30.647643+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:28:11.853405+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:28:11.854569+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:28:11.857001+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:28:11.857685+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:28:11.859210+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:28:11.872821+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:28:11.873669+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:28:11.874413+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:28:11.876904+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:28:11.878253+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:39:10.258193+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:39:10.259506+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:39:10.262120+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:39:10.263007+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:39:10.264354+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:39:10.276020+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:39:10.276785+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:39:10.277416+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:39:10.279997+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:39:10.281306+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:39:47.599503+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:39:47.600123+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:39:47.601423+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:39:47.601773+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:39:47.602519+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:39:47.609313+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:39:47.609795+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:39:47.610215+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:39:47.611797+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:39:47.612602+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:47:24.531501+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:47:24.532200+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:47:24.533467+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:47:24.533772+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:47:24.534588+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:47:24.543228+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:47:24.543677+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:47:24.544052+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:47:24.545717+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:47:24.546606+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:49:52.267065+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:49:52.267600+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:49:52.268680+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:49:52.268938+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:49:52.269549+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:49:52.276575+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:49:52.277056+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:49:52.277481+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:49:52.279157+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:49:52.279979+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:55:50.001475+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:55:50.002296+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:55:50.003992+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:55:50.004405+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:55:50.005425+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:55:50.023488+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:55:50.024163+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:55:50.024657+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:55:50.026402+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:55:50.027258+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:56:28.328824+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:56:28.329332+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:56:28.330353+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:56:28.330595+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:56:28.331192+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:56:28.337902+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:56:28.338329+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:56:28.338681+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:56:28.340108+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:56:28.340819+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:58:15.314415+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:58:15.314892+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:58:15.315878+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T15:58:15.316102+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:58:15.316687+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T15:58:15.323709+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T15:58:15.324209+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T15:58:15.324581+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T15:58:15.326112+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T15:58:15.326900+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T16:02:42.753072+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T16:02:42.753807+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T16:02:42.755274+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T16:02:42.755601+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T16:02:42.756396+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T16:02:42.765477+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T16:02:42.766200+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T16:02:42.766728+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T16:02:42.768810+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T16:02:42.769773+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T16:03:17.625990+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T16:03:17.626669+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T16:03:17.628133+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T16:03:17.628520+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T16:03:17.629473+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T16:03:17.638829+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T16:03:17.639429+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T16:03:17.639912+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T16:03:17.641850+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T16:03:17.642769+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T16:03:23.451918+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T16:03:23.743696+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T16:03:36.668437+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T16:03:36.668774+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T16:03:36.669961+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T16:07:13.817491+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T16:07:13.818012+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T16:07:13.819061+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Pipeline executed successfully."}
+{"timestamp": "2026-08-16T16:07:13.819326+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T16:07:13.819933+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
+{"timestamp": "2026-08-16T16:07:13.826877+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Initializing DI container for daily workflow..."}
+{"timestamp": "2026-08-16T16:07:13.827301+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Starting the pipeline..."}
+{"timestamp": "2026-08-16T16:07:13.827636+00:00", "level": "CRITICAL", "component": "cineops.run_daily", "message": "Daily workflow failed: Pipeline failed", "exception": "Traceback (most recent call last):\n  File \"/home/kevin/Projects/CineOps-AI/CineOps-Ai/scripts/run_daily.py\", line 20, in run_daily_workflow\n    await container.coordinator.run_pipeline()\n  File \"/usr/lib/python3.12/unittest/mock.py\", line 2262, in _execute_mock_call\n    raise effect\nException: Pipeline failed"}
+{"timestamp": "2026-08-16T16:07:13.829061+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Closing DI container and freeing resources..."}
+{"timestamp": "2026-08-16T16:07:13.829804+00:00", "level": "INFO", "component": "cineops.run_daily", "message": "Shutdown complete."}
