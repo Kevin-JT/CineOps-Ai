@@ -274,6 +274,17 @@
       "popularity": 441496.0,
       "genres": [],
       "created_at": "2026-08-21T02:41:00.437731Z"
+    },
+    "1339713": {
+      "id": "1339713",
+      "title": "Obsession",
+      "overview": "After breaking the mysterious \"One Wish Willow\" to win his crush's heart, a hopeless romantic finds himself getting exactly what he asked for but soon discovers that some desires come at a dark, sinister price.",
+      "media_type": "movie",
+      "release_date": "2026-05-13",
+      "rating": 8.228,
+      "popularity": 236.7035,
+      "genres": [],
+      "created_at": "2026-08-22T02:32:12.082574Z"
     }
   },
   "performance": []
