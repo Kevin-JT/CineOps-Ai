@@ -318,6 +318,17 @@
       "popularity": 143.0396,
       "genres": [],
       "created_at": "2026-08-25T02:35:16.517522Z"
+    },
+    "1315772": {
+      "id": "1315772",
+      "title": "Minions & Monsters",
+      "overview": "This is the rambunctious, ridiculous and totally true story of how the Minions conquered Hollywood, became movie stars, lost everything, unleashed monsters onto the world and then banded together to try and save the planet from the mayhem they had just created.",
+      "media_type": "movie",
+      "release_date": "2026-06-24",
+      "rating": 7.554,
+      "popularity": 195.6943,
+      "genres": [],
+      "created_at": "2026-08-26T02:43:39.722166Z"
     }
   },
   "performance": []
