@@ -494,6 +494,17 @@
       "popularity": 89.2192,
       "genres": [],
       "created_at": "2026-09-10T06:13:28.536172Z"
+    },
+    "1440098": {
+      "id": "1440098",
+      "title": "Drawn Together",
+      "overview": "Marfil Cort\u00e9s, a daughter of a wealthy Spanish businessman, is kidnapped and released, leading her father to hire Sebastian Moore as a bodyguard. Despite initial clashes, they form an irremediable attraction, navigating a world where no one is who they say they are.",
+      "media_type": "movie",
+      "release_date": "2026-09-09",
+      "rating": 6.9,
+      "popularity": 177.7803,
+      "genres": [],
+      "created_at": "2026-09-11T06:17:00.170779Z"
     }
   },
   "performance": []
