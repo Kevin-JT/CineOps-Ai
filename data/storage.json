@@ -527,6 +527,17 @@
       "popularity": 263926.0,
       "genres": [],
       "created_at": "2026-09-13T06:26:50.576222Z"
+    },
+    "1377237": {
+      "id": "1377237",
+      "title": "Runner",
+      "overview": "A former soldier and his unlikely partner become the targets of a ruthless cartel while racing to complete a critical medical delivery and save the life of a little girl.",
+      "media_type": "movie",
+      "release_date": "2026-09-07",
+      "rating": 7.8,
+      "popularity": 63.3353,
+      "genres": [],
+      "created_at": "2026-09-14T06:37:02.558917Z"
     }
   },
   "performance": []
