@@ -703,6 +703,17 @@
       "popularity": 216.9875,
       "genres": [],
       "created_at": "2026-09-29T07:08:23.318790Z"
+    },
+    "977942": {
+      "id": "977942",
+      "title": "The Uprising",
+      "overview": "As war and plague devastate 14th-century England, a humble peasant ignites a rebellion, uniting an army of commoners to defy the King\u2019s might in a desperate fight for justice and survival.",
+      "media_type": "movie",
+      "release_date": "2026-09-10",
+      "rating": 7.6,
+      "popularity": 104.6324,
+      "genres": [],
+      "created_at": "2026-09-30T06:58:56.428959Z"
     }
   },
   "performance": []
