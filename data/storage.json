@@ -912,6 +912,17 @@
       "popularity": 88.4125,
       "genres": [],
       "created_at": "2026-10-18T06:12:42.636526Z"
+    },
+    "1765072": {
+      "id": "1765072",
+      "title": "You Can See Everything",
+      "overview": "Thirty-four days before she's sent to prison, notorious Silicon Valley founder Elizabeth Holmes invites a skeptical film crew to document her every move. What begins as an intimate portrait of an enigmatic felon becomes a mind-bending three-year journey into the abyss.",
+      "media_type": "movie",
+      "release_date": "2026-10-16",
+      "rating": 8.472,
+      "popularity": 87.3156,
+      "genres": [],
+      "created_at": "2026-10-19T06:26:11.761521Z"
     }
   },
   "performance": []
