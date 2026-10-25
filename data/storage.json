@@ -978,6 +978,17 @@
       "popularity": 27.8759,
       "genres": [],
       "created_at": "2026-10-24T06:06:20.722222Z"
+    },
+    "1422041": {
+      "id": "1422041",
+      "title": "LA BOLA NEGRA",
+      "overview": "The intertwined lives of three men in three different eras, three lives intimately linked by sexuality and desire, pain, and legacy.",
+      "media_type": "movie",
+      "release_date": "2026-09-25",
+      "rating": 8.1,
+      "popularity": 69.1511,
+      "genres": [],
+      "created_at": "2026-10-25T06:26:46.222941Z"
     }
   },
   "performance": []
