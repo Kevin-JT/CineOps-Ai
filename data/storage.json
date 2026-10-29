@@ -1022,6 +1022,17 @@
       "popularity": 86.2164,
       "genres": [],
       "created_at": "2026-10-28T07:00:00.205457Z"
+    },
+    "1596275": {
+      "id": "1596275",
+      "title": "Drive - The Pretenders",
+      "overview": "A young race car mechanic fakes an engagement with racing's most scandalous star - officially for his reputation, secretly for her own shot behind the wheel. But soon the lie threatens to destroy everything - including what's already become so much more than just a deal.",
+      "media_type": "movie",
+      "release_date": "2026-10-27",
+      "rating": 7.441,
+      "popularity": 204.0101,
+      "genres": [],
+      "created_at": "2026-10-29T07:22:20.573997Z"
     }
   },
   "performance": []
