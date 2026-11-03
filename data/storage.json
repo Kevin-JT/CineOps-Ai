@@ -1077,6 +1077,17 @@
       "popularity": 22.4868,
       "genres": [],
       "created_at": "2026-11-02T07:52:42.304933Z"
+    },
+    "1381071": {
+      "id": "1381071",
+      "title": "Godzilla Minus Zero",
+      "overview": "War reduced Japan to zero, and Godzilla plunged it into minus. Two years have passed since then, and the country has faced agonizing struggles to achieve recovery and finally reclaim its daily life. Just as humanity managed to cling to a hard-won peace, a new threat strikes, crushing hope in an instant. There is no third time. Everything ends here.",
+      "media_type": "movie",
+      "release_date": "2026-11-03",
+      "rating": 9.5,
+      "popularity": 38.7101,
+      "genres": [],
+      "created_at": "2026-11-03T08:10:37.058812Z"
     }
   },
   "performance": []
