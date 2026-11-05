@@ -1099,6 +1099,17 @@
       "popularity": 169.6515,
       "genres": [],
       "created_at": "2026-11-04T07:42:20.468748Z"
+    },
+    "1244523": {
+      "id": "1244523",
+      "title": "Beware Boi\u00fana",
+      "overview": "A medical mission deep in the Amazon becomes a desperate fight for survival when a colossal ancient predator awakens, turning the jungle into a deadly battleground where nature decides who lives and dies.",
+      "media_type": "movie",
+      "release_date": "2026-10-01",
+      "rating": 6.468,
+      "popularity": 69.2921,
+      "genres": [],
+      "created_at": "2026-11-05T08:04:17.702484Z"
     }
   },
   "performance": []
