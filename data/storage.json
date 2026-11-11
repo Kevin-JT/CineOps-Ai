@@ -1165,6 +1165,17 @@
       "popularity": 73.3527,
       "genres": [],
       "created_at": "2026-11-10T08:35:22.163264Z"
+    },
+    "1567605": {
+      "id": "1567605",
+      "title": "Ebenezer",
+      "overview": "An elderly miser embarks on a supernatural journey after visits from the ghost of his former business partner and the Spirits of Christmas Past, Present, and Yet to Come force him to confront his past and fight for a second chance at happiness.",
+      "media_type": "movie",
+      "release_date": "2026-11-11",
+      "rating": 8.6,
+      "popularity": 55.1539,
+      "genres": [],
+      "created_at": "2026-11-11T07:56:10.054974Z"
     }
   },
   "performance": []
