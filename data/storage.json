@@ -1176,6 +1176,17 @@
       "popularity": 55.1539,
       "genres": [],
       "created_at": "2026-11-11T07:56:10.054974Z"
+    },
+    "1437511": {
+      "id": "1437511",
+      "title": "How to Rob a Bank",
+      "overview": "A crew of social media-savvy bank robbers broadcasts their daring heists, unaware that their growing viral fame has put them in the crosshairs of a veteran FBI agent and a brilliant software engineer. Despite the unlikely duo closing in, the crime ring pushes past their limits, putting everything on the line for their most ambitious heist yet.",
+      "media_type": "movie",
+      "release_date": "2026-11-10",
+      "rating": 7.4,
+      "popularity": 35.2775,
+      "genres": [],
+      "created_at": "2026-11-12T08:34:37.681964Z"
     }
   },
   "performance": []
