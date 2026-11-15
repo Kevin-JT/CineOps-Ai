@@ -1209,6 +1209,17 @@
       "popularity": 150.103,
       "genres": [],
       "created_at": "2026-11-14T07:45:36.294010Z"
+    },
+    "1543469": {
+      "id": "1543469",
+      "title": "Heartland",
+      "overview": "Former country music legend Misty Jones returns to Nashville to unravel the truth behind her rising-star niece's disappearance.",
+      "media_type": "movie",
+      "release_date": "2026-11-13",
+      "rating": 7.224,
+      "popularity": 82.8472,
+      "genres": [],
+      "created_at": "2026-11-15T08:03:18.154915Z"
     }
   },
   "performance": []
